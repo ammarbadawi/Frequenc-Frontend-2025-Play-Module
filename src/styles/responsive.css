@@ -1,0 +1,221 @@
+@media(max-width:600px) {
+
+
+	.navbar-right {
+		display: none !important;
+	}
+
+	.navbar-collapse {
+		position: fixed;
+		left: 0;
+		display: none;
+		height: 100%;
+		padding: 20px 0;
+		width: 300px;
+		background: #0b1621;
+		top: 0;
+		z-index: 9999;
+	}.m-on{display: block;}
+    .navbar-left{ float: none;}
+    .n.navbar-right{ float: none;}
+	.topheader {
+		justify-content: flex-end;
+	}
+    .navbar-left li a {
+        display: block;    padding: 10px 0 5px 10px;}
+	ul.topmenu {
+		display: none;
+	}
+    .mobileflex{ display: flex;}
+	span.closemenu {
+		display: block;
+		color: #fff;
+		font-size: 37px;
+		position: absolute;
+		right: -30px;
+		padding: 0 12px;
+		line-height: 56px;
+		top: -6px;
+		background: #0b1621;
+	}
+
+	section.homebanner {
+		min-height: 500px;
+		padding: 84px 0 20px 0;
+	}
+
+	.maxwidths h1 {
+		font-size: 26px;
+	}
+
+	.maxwidths p {
+		font-size: 16px;
+	}
+
+	.logo img {
+		max-width: 130px;
+	}
+
+	.dv {
+		margin-bottom: 15px;
+	}
+
+	.sitetitle {
+		font-size: 22px;
+	}
+
+	.tx1 {
+		font-size: 20px;
+	}
+
+	.tx2 {
+		font-size: 16px;
+	}
+
+	.linkbtns a {
+		font-size: 18px;
+	}
+
+	.containerr h3 {
+		font-size: 14px;
+		line-height: 20px;
+	}
+
+	.imgty {
+		height: 150px;
+	}
+
+	.imgty img {
+		height: 100%;
+	}
+
+	.Main_serivces {
+		border: 0;
+		padding: 15px 0 15px;
+		border-top: 1px solid #eaeaea;
+	}
+
+	.matchsec {
+		margin-bottom: 20px;
+	}
+
+	.coimg3 h3 {
+		font-weight: 600;
+		font-size: 24px;
+	}
+
+	.coimg3 p {
+		font-size: 16px;
+	}
+
+	.coimg3 {
+		width: 100%;
+	}
+
+	.buttoninere {
+		width: 100%;
+		margin: 21px 0 0;
+		justify-content: center;
+	}
+
+
+	.cofr {
+		padding: 30px 30px;
+	}
+
+	.coinew {
+		width: 100%;
+	}
+
+	.socialsubs {
+		/* width: 50%; */
+		width: 100%;
+		padding: 22px 10px 0;
+	}
+
+	.coinew h3 {
+		font-size: 22px;
+	}
+
+	.subsform .form-control {
+		font-size: 12px;
+	}
+
+	.btn-submit {
+
+		font-size: 12px;
+		color: #fff;
+		padding: 7px 15px;
+	}
+
+	.footer-title {
+		font-size: 30px;
+	}
+
+	.detailsfooter h3,
+	.detailsfooter h4 {
+		font-size: 18px;
+	}
+    .active.collapse {
+        display: block;
+    }
+	.newsletter h5 {
+		font-size: 18px;
+	}
+    .overlay_layer {
+        background: rgb(34 44 45 / 66%);
+        width: 100%;
+        position: fixed;
+        z-index: 99;
+        display: none;
+        height: 100%;
+        left: 0;
+        top: 0;
+    }    .overlay_layer.active {
+        display: block;
+    }
+	.subscrip {
+		margin: 10px 0 22px;
+	}
+
+	.footer-box ul li a {
+		font-size: 14px;
+	}
+
+	.hp_boxwe2 {
+		margin: 40px 0 40px;
+	}
+    .navbar-toggler {
+        display: block !important;
+        color: #fff;
+        margin: 0 0 0 auto;
+    }.rowname h1 {
+        font-weight: 700;
+        font-size: 20px;
+    }
+    .Share,.wishlist {     font-size: 12px;
+        font-weight: 300;
+        padding: 8px 8px;}
+    .menus {
+        text-align: right;
+    }.bookingsec .col-md-4 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+	.service-txt {
+		font-size: 22px;
+	}.buttonsdets {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }.bookingsec .col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }.slotava {
+        padding: 25px 0px 0px;
+    }.Amenities ul li {
+        width: 50%;}.sitetitle2 {
+            font-size: 20px;}
+            .rownamerow2 {
+                display: block;}
+}

@@ -1,0 +1,139 @@
+.add-friends {
+  width: 100%;
+  padding: 4rem 8rem;
+
+  .player-container {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    width: 100%;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+    .break {
+      width: 100%;
+      height: 1px;
+      background-color: #ccc;
+      margin-top: 5px;
+    }
+
+    .player-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .players-count {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        .toggle-label {
+          font-size: 14px;
+          color: #555;
+        }
+
+        .switch {
+          position: relative;
+          display: inline-block;
+          width: 34px;
+          height: 20px;
+
+          input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+          }
+
+          .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            border-radius: 34px;
+            transition: 0.4s;
+
+            &:before {
+              position: absolute;
+              content: "";
+              height: 14px;
+              width: 14px;
+              left: 3px;
+              bottom: 3px;
+              background-color: white;
+              border-radius: 50%;
+              transition: 0.4s;
+            }
+          }
+
+          input:checked + .slider {
+            background-color: #8a2be2;
+          }
+
+          input:checked + .slider:before {
+            transform: translateX(14px);
+          }
+        }
+      }
+    }
+
+    .add-player-section {
+      margin-top: 50px;
+      text-align: center;
+
+      .player-icon {
+        margin-bottom: 20px;
+
+        img {
+          width: 60px;
+          opacity: 0.6;
+        }
+      }
+
+      .add-player-btn {
+        background-color: #8a2be2;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: bold;
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+    }
+  }
+
+  .save-and-back {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+
+    button {
+      padding: 0.5rem 2rem;
+      border-radius: 6px;
+      border: 0.5px solid rgba(121, 48, 216, 0.5);
+      background: rgba(121, 48, 216, 0.07);
+      cursor: pointer;
+    }
+
+    .save {
+      color: white;
+      border-radius: 5.758px;
+      border: 0.48px solid rgba(121, 48, 216, 0.5);
+      background: #7930d8;
+    }
+  }
+}

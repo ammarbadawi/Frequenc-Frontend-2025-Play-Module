@@ -1,0 +1,66 @@
+.detail-popUp {
+  width: 50rem;
+  height: 20rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  z-index: 1000;
+  padding: 0 5rem;
+
+  p {
+    text-align: center;
+    margin: -20px 0;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    cursor: pointer;
+  }
+
+  .detail-popUp-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+
+    button {
+      background-color: #7930d848;
+      cursor: pointer;
+      padding: 0.5rem 2rem;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      border: 1px solid #7930d812;
+    }
+  }
+}
+
+// For button change color
+.change_btn_color {
+  border-radius: 7.053px;
+  border: 0.588px solid rgba(121, 48, 216, 0.5);
+  background: #7930d8 !important;
+  color: white;
+}
+
+/* To hide body */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8); /* Dark overlay */
+  backdrop-filter: blur(5px); /* Optional blur effect */
+  z-index: 999; /* Ensure it's above everything */
+}

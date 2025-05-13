@@ -1,0 +1,218 @@
+.add-friend-popup {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 4rem 2rem;
+  width: 70rem;
+  max-height: 30rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  overflow-y: scroll;
+
+  .close-btn {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #444;
+
+    &:hover {
+      color: #7f56da;
+    }
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 20px;
+  }
+
+  // friend type selection
+  .friend-type {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+
+    button {
+      padding: 0.5rem 2rem;
+      border-radius: 6px;
+      border: 0.5px solid rgba(121, 48, 216, 0.5);
+      background: #7930d8;
+      color: white;
+      cursor: pointer;
+    }
+
+    .guest {
+      border-radius: 6px;
+      border: 0.5px solid rgba(121, 48, 216, 0.5);
+      background: rgba(121, 48, 216, 0.07);
+      color: grey;
+    }
+  }
+
+  .input-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    margin-bottom: 20px;
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+
+      label {
+        margin-bottom: 4px;
+        font-weight: 500;
+        color: #444;
+      }
+
+      input {
+        padding: 8px 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        outline: none;
+        font-size: 1rem;
+
+        &:focus {
+          border-color: #7f56da;
+        }
+      }
+    }
+
+    .add-player-btn {
+      background-color: #7f56da;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+
+      &:hover {
+        background-color: #6845b5;
+      }
+    }
+  }
+
+  /*** Friends List Section ***/
+  h3 {
+    font-size: 1.2rem;
+    color: #555;
+    margin: 2rem 0;
+    margin-bottom: 10px;
+  }
+
+  ul {
+    list-style: none; // Removes bullet points
+    padding: 0;
+    margin-top: 10px;
+    max-height: 250px;
+    overflow-y: auto;
+
+    .friend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 15px;
+      border-radius: 8px;
+      background: #f8f8f8;
+      margin-bottom: 8px;
+      transition: background 0.3s ease-in-out;
+      list-style: none;
+
+      &:hover {
+        background: #eaeaea;
+        cursor: pointer;
+      }
+
+      .friend-info {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+
+        .friend-avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: #d3d3d3;
+          color: #333;
+          font-size: 1rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-right: 10px;
+        }
+      }
+
+      .friend-btns {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .add-btn {
+          background: #7f56da;
+          color: white;
+          border: none;
+          padding: 8px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          font-weight: 500;
+          margin-right: 5px;
+
+          &:hover {
+            background: #6845b5;
+          }
+        }
+
+        .delete-btn {
+          background: none;
+          border: none;
+          color: #d9534f;
+          font-size: 1.2rem;
+          cursor: pointer;
+
+          &:hover {
+            color: #c9302c;
+          }
+        }
+      }
+    }
+  }
+
+  /* Fixing the Save & Next button */
+  .save-next-btn {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 2rem;
+
+    button {
+      border-radius: 5.758px;
+      border: 0.48px solid rgba(121, 48, 216, 0.5);
+      background: #7930d8;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      display: block;
+      max-width: 250px; // Prevents full width
+      color: white;
+
+      &:hover {
+        background-color: #b099df;
+      }
+    }
+  }
+}

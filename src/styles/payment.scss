@@ -1,0 +1,469 @@
+.payment {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 4rem;
+
+  .left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 10px;
+    padding-top: 2rem;
+
+    h2 {
+      font-weight: 700;
+    }
+    p {
+      color: red;
+      margin-top: -10px;
+    }
+    .para {
+      color: unset;
+      margin-top: unset;
+    }
+
+    button {
+      padding: 0.5rem 3rem;
+      cursor: pointer;
+      outline: none;
+      border: none;
+      border-radius: 6px;
+      border: 0.5px solid rgba(121, 48, 216, 0.5);
+      background: rgba(121, 48, 216, 0.07);
+    }
+  }
+  .right {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-left: 3rem;
+    .pCom1 {
+      width: 100%;
+      border-radius: 24.345px;
+      background: #fff;
+      box-shadow: 0px 0px 47.649px 0px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 3rem;
+
+      .section {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        position: relative;
+
+        .row {
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          padding-left: 1rem;
+          align-items: center;
+
+          h5 {
+            font-size: 1.1rem;
+            font-weight: 500;
+          }
+          p {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 0;
+          }
+
+          h6 {
+            font-size: 0.75rem;
+            margin: 1rem 0;
+          }
+          .checkbox {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            .square {
+              width: 1rem;
+              height: 1rem;
+              border: 1px solid black;
+              cursor: pointer;
+              border-radius: 2px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+            }
+            .square-fill {
+              color: white;
+              border-radius: 3.658px;
+              border: 0.915px solid #424d9c;
+              background: #424d9c;
+              box-shadow: 0px 1.669px 12.515px 0px rgba(0, 0, 0, 0.1);
+            }
+          }
+        }
+
+        .box {
+          width: 100%;
+          padding: 1rem;
+          border-radius: 3.872px;
+          border: 0.4px solid rgba(121, 48, 216, 0.15);
+          background: rgba(241, 240, 250, 0.4);
+          font-size: 0.85rem;
+          margin: 10px 0;
+        }
+
+        .add-players {
+          color: #7930d8;
+          font-weight: 600;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        button {
+          width: 100%;
+          height: 2.5rem;
+          border-radius: 6px;
+          border: 0.5px solid rgba(121, 48, 216, 0.5);
+          background: #7930d8;
+          color: white;
+          cursor: pointer;
+          margin: 1rem 0;
+        }
+
+        // for payment type - 2
+
+        .custom-select {
+          margin-bottom: 2rem;
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          width: 100%;
+          border: 2px solid transparent;
+          background: linear-gradient(#fff, #fff) padding-box,
+            linear-gradient(45deg, #8a2be2, #ff69b4) border-box;
+          border-radius: 10px;
+          padding: 1.5rem;
+          cursor: pointer;
+
+          .select-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+          }
+
+          select {
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            padding: 10px;
+            width: 100%;
+            outline: none;
+            appearance: none;
+          }
+
+          .arrow {
+            position: absolute;
+            right: 10px;
+            font-size: 16px;
+            pointer-events: none;
+          }
+        }
+
+        // for friend list
+        .friends-list {
+          display: flex;
+          align-items: center;
+          font-family: Arial, sans-serif;
+          margin: 1rem 0;
+
+          .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #8a2be2;
+            margin-right: 10px;
+          }
+
+          .avatars {
+            position: relative;
+            display: flex;
+
+            .avatar {
+              width: 50px;
+              height: 50px;
+              border-radius: 50%;
+              border: 2px solid #fff;
+              position: relative;
+              box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+              &:not(:last-child) {
+                margin-right: -15px; // Overlapping effect
+              }
+            }
+          }
+        }
+      }
+
+      .break {
+        width: 100%;
+        height: 1px;
+        background-color: #eaeaea;
+        margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+// css classes of booking_info page
+.section_enhancer {
+  border-radius: 4px;
+  border: 0.423px solid #e8e8e8;
+  background: #fff;
+  box-shadow: 0px 0px 47.649px 0px rgba(0, 0, 0, 0.05);
+  padding: 10px;
+}
+.row_enhancer {
+  display: flex;
+  gap: 10px;
+}
+.booking_info_img_container {
+  width: 5rem;
+  height: 10rem;
+
+  div {
+    display: flex;
+    flex-direction: column;
+
+    h5 {
+      margin-top: 10px;
+      font-size: 0.85rem !important;
+    }
+
+    p {
+      color: #9c9c9c;
+      font-size: 0.75rem !important;
+    }
+  }
+}
+
+.booking_info_add_card {
+  width: 5rem;
+  height: 5.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid lightgray;
+  font-size: 2rem;
+  color: #7930d8;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.pipe {
+  width: 1px;
+  height: 8rem;
+  background-color: #dddddd;
+  margin-bottom: 2rem;
+}
+
+.chat-btn {
+  margin: 10px 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 105.76px;
+  background: #03103b;
+  padding: 0.75rem 2rem;
+  color: white;
+  gap: 10px;
+
+  img {
+    margin-top: -5px;
+  }
+}
+
+.registration {
+  margin: 15px 0;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  h5 {
+    font-size: 1rem !important;
+  }
+  p {
+    font-size: 0.75rem !important;
+    font-weight: 400 !important;
+  }
+}
+
+// change of left content css
+.info-container {
+  font-family: "Inter", sans-serif;
+  max-width: 600px;
+  padding: 1.5rem 0;
+  color: #222;
+
+  h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    .host-profile {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+
+      .profile-pic {
+        width: 55px;
+        height: 55px;
+        object-fit: cover;
+        border-radius: 8px;
+      }
+
+      .host-details {
+        display: unset;
+        margin-top: 20px;
+        .host-name {
+          color: black;
+          font-weight: 600;
+          margin-bottom: 0.1rem;
+        }
+
+        .host-role {
+          margin-top: 5px;
+          font-size: 0.75rem;
+          color: gray;
+          .rating {
+            color: #645cff;
+            margin-left: 4px;
+          }
+        }
+      }
+    }
+
+    .venue-card {
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.04);
+      text-align: left;
+      flex-grow: 1;
+      max-width: 260px;
+      position: relative;
+
+      .venue-title {
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+      }
+
+      .venue-address {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .venue-icon {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.2rem;
+        color: #222;
+      }
+    }
+  }
+
+  .info-section {
+    margin-bottom: 1.2rem;
+
+    .label {
+      color: #000;
+      font-weight: 700;
+      margin-bottom: 0.2rem;
+      font-size: 1.15rem;
+    }
+
+    p {
+      margin: 0.2rem 0;
+      color: #444;
+    }
+  }
+
+  .pending-section {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+    border-radius: 20px;
+    border: 0.423px solid #ff8e2b;
+    background: #fff;
+    box-shadow: 0px 0px 47.649px 0px rgba(0, 0, 0, 0.1);
+    h2 {
+      font-size: 1.2rem;
+    }
+    p {
+      color: unset;
+    }
+  }
+}
+
+// popUp Booking
+.popUpBooking {
+  width: 50rem;
+  height: 28rem;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  z-index: 1000;
+  padding: 0 5rem;
+
+  .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+  p {
+    text-align: center;
+  }
+  button {
+    width: 70%;
+    padding: 5px 0;
+    border-radius: 7.053px;
+    border: 0.588px solid rgba(121, 48, 216, 0.5);
+    background: #7930d8;
+    color: white;
+    cursor: pointer;
+  }
+}
+
+.cancel-booking {
+  background: unset !important;
+  border-radius: 6px !important;
+  border: 1px solid #f00 !important;
+  color: red !important;
+}
