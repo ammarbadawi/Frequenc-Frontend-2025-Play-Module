@@ -1,17 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "../../styles/create.scss";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 export const CreatePopUp = ({ setIsPopUpEnabled, setIsMatchPopUpEnabled }) => {
   const [selectedContainer, setSelectedContainer] = React.useState(true);
 
   useEffect(() => {
     handlePopUp(1);
+    
+    // Add ESC key event listener
+    const handleEscKey = (e) => {
+      if (e.key === "Escape") {
+        handlePopUp(0);
+      }
+    };
+    
+    document.addEventListener("keydown", handleEscKey);
 
     return () => {
       // Cleanup overlay if component unmounts
       const existingOverlay = document.getElementById("global-overlay");
       if (existingOverlay) existingOverlay.remove();
       document.body.style.overflow = "unset";
+      document.removeEventListener("keydown", handleEscKey);
     };
   }, []);
 
@@ -24,6 +36,14 @@ export const CreatePopUp = ({ setIsPopUpEnabled, setIsMatchPopUpEnabled }) => {
       overlay.classList.add("overlay");
       overlay.id = "global-overlay";
       document.body.appendChild(overlay);
+      
+      // Add click event to overlay to close popup when clicking outside
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) {
+          handlePopUp(0);
+        }
+      });
+      
     } else {
       setIsPopUpEnabled(false);
       // Remove overlay when popup closes
@@ -39,8 +59,8 @@ export const CreatePopUp = ({ setIsPopUpEnabled, setIsMatchPopUpEnabled }) => {
 
   return (
     <div className="createPopUp1 detail-popUp">
-      <div className="close-btn global-h1" onClick={() => handlePopUp(0)}>
-        ✖
+      <div className="close-btn" onClick={() => handlePopUp(0)}>
+        <FontAwesomeIcon icon={faTimes} />
       </div>
       <h1 className="global-h1">Where are you Playing?</h1>
       <div
@@ -65,7 +85,7 @@ export const CreatePopUp = ({ setIsPopUpEnabled, setIsMatchPopUpEnabled }) => {
         }
         onClick={() => setSelectedContainer(false)}
       >
-        <h5>I already know where I’m Playing</h5>
+        <h5>I already know where I'm Playing</h5>
         <p>
           Arrange a match at a venue that is not within the option offered by
           frequenC.
@@ -87,8 +107,45 @@ export const CreateMatchPopUp = ({
   const [isFree, setIsFree] = useState(true);
   const [amount, setAmount] = useState("");
   const [mode, setMode] = useState("doubles");
+  
+  const handleClose = () => {
+    setIsMatchPopUpEnabled(false);
+  };
+  
+  useEffect(() => {
+    // Add click event to overlay to close popup when clicking outside
+    const overlay = document.getElementById("global-overlay");
+    if (overlay) {
+      const handleOutsideClick = (e) => {
+        if (e.target === overlay) {
+          handleClose();
+        }
+      };
+      
+      overlay.addEventListener("click", handleOutsideClick);
+      
+      // Add ESC key event listener
+      const handleEscKey = (e) => {
+        if (e.key === "Escape") {
+          handleClose();
+        }
+      };
+      
+      document.addEventListener("keydown", handleEscKey);
+      
+      // Cleanup
+      return () => {
+        overlay.removeEventListener("click", handleOutsideClick);
+        document.removeEventListener("keydown", handleEscKey);
+      };
+    }
+  }, []);
+  
   return (
     <div className="create-match detail-popUp">
+      <div className="close-btn" onClick={handleClose}>
+        <FontAwesomeIcon icon={faTimes} />
+      </div>
       <div className="play-selector">
         <div className="toggle-section">
           <label className="label">Do you want to play?</label>
@@ -217,7 +274,7 @@ export const CreateMatchPopUp = ({
 const players = [
   {
     name: "Aadil",
-    image: "https://i.pravatar.cc/100?img=10", // Replace with actual image
+    image: "https://i.pravatar.cc/100?img=10",
     available: false,
   },
   { name: "", image: "", available: true },
@@ -370,6 +427,15 @@ export const MessageForm = ({
     overlay.classList.add("overlay");
     overlay.id = "global-overlay";
     document.body.appendChild(overlay);
+    
+    // Add click event to overlay to close success popup when clicking outside
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        setIsSuccessPopUpEnabled(false);
+        overlay.remove();
+        document.body.style.overflow = "unset";
+      }
+    });
   };
 
   return (

@@ -1,6 +1,8 @@
 .detail-popUp {
-  width: 50rem;
-  height: 20rem;
+  width: 80%;
+  max-width: 35rem;
+  height: auto;
+  min-height: 18rem;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -10,9 +12,17 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 30px;
+  gap: 20px;
   z-index: 1000;
-  padding: 0 5rem;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+
+  @media (max-width: 768px) {
+    width: 90%;
+    max-width: 30rem;
+    padding: 1.5rem;
+  }
 
   p {
     text-align: center;
@@ -21,9 +31,21 @@
 
   .close-btn {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 1rem;
+    right: 1rem;
     cursor: pointer;
+    font-size: 1.2rem;
+    color: #666;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #7930d8;
+    }
   }
 
   .detail-popUp-container {

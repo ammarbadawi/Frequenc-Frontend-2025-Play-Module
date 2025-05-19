@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom"; // Import the necessary hooks
 import "./App.css";
 import Header from "./components/Header";
-import Footer from "./components/Footer";
+import { Footer } from "./components/footer/Footer";
 
 // Import Swiper styles
 import "swiper/css";
@@ -23,11 +23,14 @@ function useBodyClass() {
   }, [location]);
 
   useEffect(() => {
-    // If it's not the home page, add a class to body
+    // Remove the non-home-page class completely to prevent header style overrides
+    document.body.classList.remove("non-home-page");
+    
+    // We'll use a different class that doesn't affect the header
     if (location.pathname !== "/") {
-      document.body.classList.add("non-home-page");
+      document.body.classList.add("interior-page");
     } else {
-      document.body.classList.remove("non-home-page");
+      document.body.classList.remove("interior-page");
     }
   }, [location]); // Runs when location changes
 }
@@ -46,10 +49,19 @@ const App = () => {
 const BodyClassWrapper = () => {
   useBodyClass(); // Custom hook to manage body class
 
+  // Add a style to ensure proper layout with footer visible
+  const mainStyle = {
+    display: 'flex',
+    flexDirection: 'column',
+    minHeight: '100vh',
+  };
+
   return (
-    <div id="main">
+    <div id="main" style={mainStyle}>
       <Header />
-      <RouteConfig />
+      <div style={{ flex: 1 }}>
+        <RouteConfig />
+      </div>
       <Footer />
     </div>
   );

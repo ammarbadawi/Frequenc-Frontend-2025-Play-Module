@@ -1,15 +1,47 @@
-import React from "react";
+import React, { useEffect } from "react";
 import "../../styles/create.scss";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const Success = () => {
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // Add click event to overlay to close when clicking outside
+    const overlay = document.getElementById("global-overlay");
+    if (overlay) {
+      const handleOutsideClick = (e) => {
+        if (e.target === overlay) {
+          handleNavigate();
+        }
+      };
+      
+      overlay.addEventListener("click", handleOutsideClick);
+      
+      // Add ESC key event listener
+      const handleEscKey = (e) => {
+        if (e.key === "Escape") {
+          handleNavigate();
+        }
+      };
+      
+      document.addEventListener("keydown", handleEscKey);
+      
+      // Cleanup
+      return () => {
+        overlay.removeEventListener("click", handleOutsideClick);
+        document.removeEventListener("keydown", handleEscKey);
+      };
+    }
+  }, []);
+
   const handleCopy = () => {
     const dummyLink = "https://yourwebsite.com/match/123"; // Replace with actual match link
     navigator.clipboard.writeText(dummyLink);
     alert("Link copied to clipboard!");
   };
 
-  const navigate = useNavigate();
   const handleNavigate = () => {
     const existingOverlay = document.getElementById("global-overlay");
     if (existingOverlay) existingOverlay.remove();
@@ -19,8 +51,8 @@ const Success = () => {
 
   return (
     <div className="success-message detail-popUp">
-      <div className="close-btn global-h1" onClick={handleNavigate}>
-        ✖
+      <div className="close-btn" onClick={handleNavigate}>
+        <FontAwesomeIcon icon={faTimes} />
       </div>
       <div className="icon">
         <svg

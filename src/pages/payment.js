@@ -2,8 +2,15 @@ import React, { useState } from "react";
 import "../styles/payment.scss";
 import PComp1 from "../components/paymentComp/pComp1";
 import PComp2 from "../components/paymentComp/pComp2";
+import { useNavigate } from "react-router-dom";
+
 const Payment = () => {
   const [showComp1, setShowComp1] = useState(true);
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1); // Navigate to the previous page
+  };
 
   return (
     <div className="payment">
@@ -24,7 +31,7 @@ const Payment = () => {
           cursus scelerisque eget.{" "}
         </p>
 
-        <button>Back</button>
+        <button onClick={handleBack}>Back</button>
       </div>
       <div className="right">
         {showComp1 ? (

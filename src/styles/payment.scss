@@ -135,8 +135,96 @@
           margin: 1rem 0;
         }
 
-        // for payment type - 2
+        // Custom dropdown styles
+        .custom-dropdown {
+          margin-bottom: 2rem;
+          position: relative;
+          width: 100%;
+          z-index: 100;
+          
+          .dropdown-header {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            border: 2px solid transparent;
+            background: linear-gradient(#fff, #fff) padding-box,
+              linear-gradient(45deg, #8a2be2, #ff69b4) border-box;
+            border-radius: 10px;
+            padding: 1.5rem;
+            cursor: pointer;
+            
+            .select-icon {
+              width: 24px;
+              height: 24px;
+              margin-right: 10px;
+              color: #7930D8;
+            }
+            
+            .selected-text {
+              flex: 1;
+              font-size: 16px;
+              color: #333;
+              font-weight: 500;
+            }
+            
+            .arrow {
+              color: #7930D8;
+              font-size: 16px;
+              transition: transform 0.3s ease;
+              
+              &.open {
+                transform: rotate(180deg);
+              }
+            }
+          }
+          
+          .dropdown-options {
+            position: absolute;
+            top: calc(100% - 5px);
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 101;
+            border: 1px solid #f0f0f0;
+            
+            .dropdown-option {
+              padding: 15px;
+              cursor: pointer;
+              transition: background 0.2s ease;
+              color: #333;
+              font-weight: 400;
+              
+              &:first-child {
+                color: #666;
+              }
+              
+              &:hover {
+                background-color: #f5f0ff;
+              }
+              
+              &.selected {
+                background-color: #f0e6ff;
+                font-weight: 500;
+              }
+              
+              &:last-child {
+                border-radius: 0 0 10px 10px;
+              }
+            }
+          }
+        }
 
+        // For browsers that still apply focus styles to our custom dropdown
+        .custom-dropdown:focus-within .dropdown-header {
+          outline: none;
+          box-shadow: 0 0 0 2px rgba(121, 48, 216, 0.3);
+        }
+        
+        // Original custom select - can be kept for fallback or removed
         .custom-select {
           margin-bottom: 2rem;
           position: relative;
@@ -151,9 +239,10 @@
           cursor: pointer;
 
           .select-icon {
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             margin-right: 10px;
+            color: #7930D8;
           }
 
           select {
@@ -165,13 +254,49 @@
             width: 100%;
             outline: none;
             appearance: none;
+            color: #333;
+            font-weight: 500;
+
+            &::-ms-expand {
+              display: none;
+            }
+
+            option {
+              padding: 10px;
+              margin: 5px 0;
+              background-color: white;
+              color: #333;
+              font-weight: 400;
+              
+              &:first-child {
+                font-weight: 500;
+                color: #666;
+              }
+              
+              &:hover, &:focus {
+                background-color: #f5f0ff;
+              }
+            }
           }
 
           .arrow {
             position: absolute;
-            right: 10px;
+            right: 15px;
             font-size: 16px;
             pointer-events: none;
+            color: #7930D8;
+            transition: transform 0.3s ease;
+          }
+          
+          &:hover .arrow {
+            transform: translateY(2px);
+          }
+        }
+
+        // Style to override browser dropdown menu
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+          select {
+            -webkit-appearance: none;
           }
         }
 

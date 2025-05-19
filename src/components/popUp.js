@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "../styles/popUp.scss";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
+
 const PopUp = ({
   popUpState,
   setPopUpState,
@@ -15,6 +18,41 @@ const PopUp = ({
       handlePopUp(1);
     }
   }, [popUpState]);
+
+  useEffect(() => {
+    if (isPopUpEnabled) {
+      // Add ESC key event listener
+      const handleEscKey = (e) => {
+        if (e.key === "Escape") {
+          handlePopUp(0);
+        }
+      };
+      
+      document.addEventListener("keydown", handleEscKey);
+      
+      // Add click event to overlay to close popup when clicking outside
+      const overlay = document.getElementById("global-overlay");
+      if (overlay) {
+        const handleOutsideClick = (e) => {
+          if (e.target === overlay) {
+            handlePopUp(0);
+          }
+        };
+        
+        overlay.addEventListener("click", handleOutsideClick);
+        
+        // Cleanup
+        return () => {
+          overlay.removeEventListener("click", handleOutsideClick);
+          document.removeEventListener("keydown", handleEscKey);
+        };
+      }
+      
+      return () => {
+        document.removeEventListener("keydown", handleEscKey);
+      };
+    }
+  }, [isPopUpEnabled]);
 
   const [isPopUpEnabled, setIsPopUpEnabled] = useState(false);
   const navigate = useNavigate();
@@ -63,8 +101,8 @@ const PopUp = ({
       id="detail-popUp"
       style={!isPopUpEnabled ? { display: "none" } : {}}
     >
-      <div className="close-btn global-h1" onClick={() => handlePopUp(0)}>
-        ✖
+      <div className="close-btn" onClick={() => handlePopUp(0)}>
+        <FontAwesomeIcon icon={faTimes} />
       </div>
       <h1 className="global-h1">{data[0].heading}</h1>
       <p className="global-p">{data[0].content}</p>

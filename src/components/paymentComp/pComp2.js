@@ -1,5 +1,7 @@
-import React from "react";
-import card from "../../assets/images/card.svg";
+import React, { useState, useRef, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCreditCard } from "@fortawesome/free-regular-svg-icons";
+import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import friend1 from "../../assets/images/friend1.svg";
 import friend2 from "../../assets/images/friend2.svg";
 import friend3 from "../../assets/images/friend3.svg";
@@ -7,22 +9,64 @@ import { useNavigate } from "react-router-dom";
 
 const PComp2 = () => {
   const navigate = useNavigate();
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("Select Payment Method");
+  const dropdownRef = useRef(null);
+
+  const paymentOptions = [
+    "Select Payment Method",
+    "Credit Card",
+    "PayPal",
+    "Bank Transfer"
+  ];
+
+  const toggleDropdown = () => setIsOpen(!isOpen);
+
+  const handleOptionClick = (option) => {
+    setSelectedOption(option);
+    setIsOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <>
       <div className="pCom1">
         <div className="section">
-          <div class="custom-select">
-            <img src={card} alt="card icon" class="select-icon" />
-            <select>
-              <option value="" selected disabled>
-                Select Payment Method
-              </option>
-              <option value="credit">Credit Card</option>
-              <option value="paypal">PayPal</option>
-              <option value="bank">Bank Transfer</option>
-            </select>
-            <span class="arrow">&#9662;</span>
+          <div className="custom-dropdown" ref={dropdownRef}>
+            <div className="dropdown-header" onClick={toggleDropdown}>
+              <FontAwesomeIcon icon={faCreditCard} className="select-icon" />
+              <span className="selected-text">{selectedOption}</span>
+              <FontAwesomeIcon 
+                icon={faChevronDown} 
+                className={`arrow ${isOpen ? 'open' : ''}`} 
+              />
+            </div>
+            {isOpen && (
+              <div className="dropdown-options">
+                {paymentOptions.map((option, index) => (
+                  <div 
+                    key={index} 
+                    className={`dropdown-option ${option === selectedOption ? 'selected' : ''}`}
+                    onClick={() => handleOptionClick(option)}
+                  >
+                    {option}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

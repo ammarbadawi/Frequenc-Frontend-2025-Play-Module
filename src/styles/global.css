@@ -73,11 +73,10 @@ section.homebanner {
   font-size: 12px;
 }
 .non-home-page header {
-  position: static;
-  position: static;
-  background: #1d1818;
-
-  padding: 0 0 6px;
+  position: sticky !important;
+  top: 0 !important;
+  background: none !important;
+  padding: 0 !important;
 }
 .containerTd .swiper {
   padding: 60px 0 0 0;
@@ -326,13 +325,8 @@ p.terms {
   display: none;
 }
 header {
-  position: absolute;
-  top: 0;
-  width: 100%;
-  z-index: 3;
-  padding: 0 0 15px;
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
-  /*       border-bottom: 1px solid #222222;*/
+  position: sticky !important;
+  top: 0 !important;
 }
 .collapse {
   display: block;
@@ -1431,4 +1425,10 @@ span.submitnew {
 .global-p {
   font-size: 1rem;
   font-weight: 400;
+}
+
+/* New class for interior pages that doesn't affect header */
+.interior-page {
+  /* Add any styling needed for interior pages that doesn't affect the header */
+  padding-top: 0;
 }

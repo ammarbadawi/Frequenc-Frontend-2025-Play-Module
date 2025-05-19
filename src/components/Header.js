@@ -1,169 +1,185 @@
-import { BrowserRouter as useLocation } from "react-router-dom";
-import React from "react";
-import { Link } from "react-router-dom"; // For navigation links
-import { useState, useEffect } from "react";
-const Header = () => {
-  const [isActive, setIsActive] = useState(false);
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import logo from "../assets/images/logo.svg";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { 
+  faBell, 
+  faShoppingCart, 
+  faHeart, 
+  faUser, 
+  faBars, 
+  faTimes 
+} from "@fortawesome/free-solid-svg-icons";
+import "../styles/header.scss";
 
-  const handleClick = () => {
-    setIsActive(!isActive);
+const Header = () => {
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+  
+  // Handle window resize to close mobile menu when screen gets larger
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+      
+      // Close mobile menu if screen gets larger than breakpoint
+      if (window.innerWidth > 855 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+        document.body.style.overflow = 'auto';
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [mobileMenuOpen]);
+
+  // Check if a navigation item is active
+  const isActive = (path) => {
+    return location.pathname === path;
   };
-  const handleClick2 = () => {
-    setIsActive(!isActive);
+
+  // Toggle mobile menu
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    // Prevent body scrolling when menu is open
+    document.body.style.overflow = !mobileMenuOpen ? 'hidden' : 'auto';
+  };
+
+  // Close mobile menu when clicking a link
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    document.body.style.overflow = 'auto';
   };
 
   return (
-    <header>
-      <div class="topheader1">
-        <div class="container">
-          <div class="topheader">
-            <ul class="topmenu">
-              <li>
-                <a href="#">Privacy Policy</a>
+    <header className={`main-header ${scrolled ? 'scrolled' : ''}`}>
+      <div className="header-container">
+        <div className="logo-section">
+          <Link to="/">
+            <img src={logo} alt="frequenC logo" className="logo" />
+          </Link>
+        </div>
+        
+        {/* Mobile menu toggle - only show when menu is closed */}
+        {!mobileMenuOpen && (
+          <div className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+            <FontAwesomeIcon icon={faBars} />
+          </div>
+        )}
+        
+        {/* Desktop navigation */}
+        <nav className="main-nav desktop-nav">
+          <ul className="nav-links">
+            <li className={isActive("/create") ? "active" : ""}>
+              <Link to="/create">Create</Link>
+            </li>
+            <li className={isActive("/connect") ? "active" : ""}>
+              <Link to="/connect">Connect</Link>
+            </li>
+            <li className={isActive("/experience") ? "active" : ""}>
+              <Link to="/experience">Experience</Link>
+            </li>
+            <li className={isActive("/play") ? "active" : ""}>
+              <Link to="/play">Play</Link>
+            </li>
+          </ul>
+        </nav>
+        
+        {/* Desktop header actions */}
+        <div className="header-actions desktop-actions">
+          <div className="icon-group">
+            <Link to="/notifications" className="icon-link">
+              <FontAwesomeIcon icon={faBell} />
+            </Link>
+            <Link to="/cart" className="icon-link cart-icon">
+              <FontAwesomeIcon icon={faShoppingCart} />
+              <span className="cart-count">2</span>
+            </Link>
+            <Link to="/favorites" className="icon-link">
+              <FontAwesomeIcon icon={faHeart} />
+            </Link>
+          </div>
+          
+          <Link to="/wallet" className="connect-wallet-btn">
+            Connect Wallet
+          </Link>
+          
+          <Link to="/profile" className="profile-link">
+            <FontAwesomeIcon icon={faUser} className="user-icon" />
+          </Link>
+        </div>
+        
+        {/* Mobile menu overlay */}
+        <div className={`mobile-menu-overlay ${mobileMenuOpen ? 'active' : ''}`}>
+          {/* Close button at top right */}
+          <div className="mobile-close-btn" onClick={toggleMobileMenu}>
+            <FontAwesomeIcon icon={faTimes} />
+          </div>
+          
+          <nav className="mobile-nav">
+            <ul className="mobile-nav-links">
+              <li className={isActive("/create") ? "active" : ""}>
+                <Link to="/create" onClick={closeMobileMenu}>Create</Link>
               </li>
-              <li>
-                <a href="#">Terms & Conditions</a>
+              <li className={isActive("/connect") ? "active" : ""}>
+                <Link to="/connect" onClick={closeMobileMenu}>Connect</Link>
+              </li>
+              <li className={isActive("/experience") ? "active" : ""}>
+                <Link to="/experience" onClick={closeMobileMenu}>Experience</Link>
+              </li>
+              <li className={isActive("/play") ? "active" : ""}>
+                <Link to="/play" onClick={closeMobileMenu}>Play</Link>
               </li>
             </ul>
-            <div class="lenbox">
-              <div class="dropdownlink">
-                English <i class="fa fa-angle-down"></i>
+            
+            <div className="mobile-actions">
+              <div className="mobile-icons">
+                <Link to="/notifications" className="mobile-icon-link" onClick={closeMobileMenu}>
+                  <FontAwesomeIcon icon={faBell} />
+                  <span>Notifications</span>
+                </Link>
+                <Link to="/cart" className="mobile-icon-link" onClick={closeMobileMenu}>
+                  <FontAwesomeIcon icon={faShoppingCart} />
+                  <span>Cart</span>
+                </Link>
+                <Link to="/favorites" className="mobile-icon-link" onClick={closeMobileMenu}>
+                  <FontAwesomeIcon icon={faHeart} />
+                  <span>Favorites</span>
+                </Link>
+                <Link to="/profile" className="mobile-icon-link" onClick={closeMobileMenu}>
+                  <FontAwesomeIcon icon={faUser} />
+                  <span>Profile</span>
+                </Link>
               </div>
-              <div class="location">
-                <svg
-                  width="13"
-                  height="16"
-                  viewBox="0 0 13 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M6.3833 0C4.79256 0.00173034 3.26748 0.609087 2.14265 1.68883C1.01782 2.76856 0.385103 4.23251 0.383301 5.75949C0.383301 7.87854 2.16769 10.2594 3.89347 12.5619C4.72724 13.6743 5.5895 14.8248 6.2125 15.9035C6.22941 15.9327 6.25417 15.9571 6.2842 15.9741C6.31424 15.9911 6.34845 16 6.3833 16C6.41815 16 6.45237 15.9911 6.4824 15.9741C6.51243 15.9571 6.53719 15.9327 6.55411 15.9035C7.1771 14.8248 8.03936 13.6743 8.87313 12.5619C10.5989 10.2594 12.3833 7.87854 12.3833 5.75949C12.3815 4.23251 11.7488 2.76856 10.624 1.68883C9.49912 0.609087 7.97405 0.00173034 6.3833 0ZM6.3833 8.24413C5.87136 8.24413 5.37092 8.09841 4.94526 7.8254C4.5196 7.55238 4.18784 7.16433 3.99193 6.71032C3.79602 6.25631 3.74476 5.75673 3.84463 5.27476C3.94451 4.79278 4.19103 4.35006 4.55302 4.00258C4.91502 3.65509 5.37623 3.41845 5.87833 3.32258C6.38043 3.22671 6.90087 3.27592 7.37384 3.46397C7.84681 3.65203 8.25106 3.97049 8.53548 4.37909C8.8199 4.78769 8.97171 5.26807 8.97171 5.75949C8.97095 6.41823 8.698 7.04979 8.21274 7.51559C7.72749 7.9814 7.06956 8.2434 6.3833 8.24413Z"
-                    fill="white"
-                  />
-                </svg>
-              </div>
+              
+              <Link to="/wallet" className="mobile-wallet-btn" onClick={closeMobileMenu}>
+                Connect Wallet
+              </Link>
             </div>
-          </div>
+          </nav>
         </div>
       </div>
-      <div class="top-bar">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-3 col-6 logobg">
-              <div class="logo">
-                <a href="/">
-                  <img src="images/logo.svg" />
-                </a>
-              </div>
-            </div>
-            <div class="col-md-9 col-6">
-              <div class="menus">
-                <div class="m-on mobileflex">
-                  <button
-                    class="navbar-toggler tooglemenu"
-                    onClick={handleClick}
-                  >
-                    <span class="fa fa-bars"></span>
-                  </button>
-                  <span class="searchicon">
-                    <svg
-                      width="21"
-                      height="21"
-                      viewBox="0 0 23 23"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        clip-rule="evenodd"
-                        d="M14.137 2.43036C15.4931 2.43036 16.8187 2.8325 17.9463 3.58593C19.0739 4.33935 19.9527 5.41023 20.4717 6.66313C20.9906 7.91603 21.1264 9.29469 20.8618 10.6248C20.5973 11.9548 19.9442 13.1766 18.9853 14.1355C18.0264 15.0945 16.8047 15.7475 15.4746 16.0121C14.1446 16.2766 12.7659 16.1408 11.5131 15.6219C10.2602 15.1029 9.18931 14.2241 8.43589 13.0965C7.68248 11.9689 7.28034 10.6432 7.28034 9.28708C7.28034 7.46857 8.00274 5.72453 9.2886 4.43865C10.5745 3.15276 12.3185 2.43036 14.137 2.43036ZM1.13174 20.7395C0.940257 20.9483 0.836784 21.2229 0.842909 21.5062C0.849034 21.7894 0.964284 22.0593 1.16462 22.2596C1.36495 22.4599 1.63488 22.5751 1.91811 22.5812C2.20133 22.5873 2.47597 22.4838 2.68472 22.2923L8.79024 16.1172L9.2125 16.41C10.99 17.6389 13.1628 18.1585 15.304 17.8668C17.4451 17.5751 19.3998 16.4932 20.7838 14.8337C22.1679 13.1742 22.8812 11.057 22.7838 8.89824C22.6863 6.73949 21.785 4.69524 20.257 3.16721C18.729 1.63919 16.6847 0.737874 14.526 0.640383C12.3673 0.542892 10.2502 1.25628 8.59066 2.64035C6.93115 4.02442 5.84925 5.9791 5.55758 8.12028C5.2659 10.2615 5.78554 12.4343 7.01437 14.2118L7.30694 14.6339L1.13174 20.7395Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </span>
-                </div>
-
-                <div
-                  className={
-                    isActive
-                      ? "active collapse navbar-collapse"
-                      : "collapse navbar-collapse"
-                  }
-                  id="tranding"
-                >
-                  <span class="closemenu" onClick={handleClick2}>
-                    &times;
-                  </span>
-                  <ul class="nav navbar-nav menu-items navbar-left">
-                    <li>
-                      <a href="#">Create</a>
-                    </li>
-
-                    <li>
-                      <Link to="/marketplace2">Connect</Link>
-                    </li>
-                    <li>
-                      <Link to="/details">Experience</Link>
-                    </li>
-                    <li>
-                      <Link to="/marketplace2">Play</Link>
-                    </li>
-                    <li>
-                      <Link to="/marketplace">Marketplace</Link>
-                    </li>
-                  </ul>
-                  <ul class="nav  menu-items navbar-right">
-                    <li>
-                      <span class="searchicon">
-                        <svg
-                          width="21"
-                          height="21"
-                          viewBox="0 0 23 23"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            fill-rule="evenodd"
-                            clip-rule="evenodd"
-                            d="M14.137 2.43036C15.4931 2.43036 16.8187 2.8325 17.9463 3.58593C19.0739 4.33935 19.9527 5.41023 20.4717 6.66313C20.9906 7.91603 21.1264 9.29469 20.8618 10.6248C20.5973 11.9548 19.9442 13.1766 18.9853 14.1355C18.0264 15.0945 16.8047 15.7475 15.4746 16.0121C14.1446 16.2766 12.7659 16.1408 11.5131 15.6219C10.2602 15.1029 9.18931 14.2241 8.43589 13.0965C7.68248 11.9689 7.28034 10.6432 7.28034 9.28708C7.28034 7.46857 8.00274 5.72453 9.2886 4.43865C10.5745 3.15276 12.3185 2.43036 14.137 2.43036ZM1.13174 20.7395C0.940257 20.9483 0.836784 21.2229 0.842909 21.5062C0.849034 21.7894 0.964284 22.0593 1.16462 22.2596C1.36495 22.4599 1.63488 22.5751 1.91811 22.5812C2.20133 22.5873 2.47597 22.4838 2.68472 22.2923L8.79024 16.1172L9.2125 16.41C10.99 17.6389 13.1628 18.1585 15.304 17.8668C17.4451 17.5751 19.3998 16.4932 20.7838 14.8337C22.1679 13.1742 22.8812 11.057 22.7838 8.89824C22.6863 6.73949 21.785 4.69524 20.257 3.16721C18.729 1.63919 16.6847 0.737874 14.526 0.640383C12.3673 0.542892 10.2502 1.25628 8.59066 2.64035C6.93115 4.02442 5.84925 5.9791 5.55758 8.12028C5.2659 10.2615 5.78554 12.4343 7.01437 14.2118L7.30694 14.6339L1.13174 20.7395Z"
-                            fill="white"
-                          />
-                        </svg>
-                      </span>
-                    </li>
-                    <li>
-                      <a href="#" class="enroll_now_log">
-                        Become a Vendor
-                      </a>
-                    </li>
-                    <li>
-                      <div class="userprofile">
-                        <svg
-                          width="16"
-                          height="21"
-                          viewBox="0 0 16 21"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M0.771118 20.4124C0.771118 18.3893 1.57136 16.4489 2.99579 15.0183C4.42022 13.5877 6.35216 12.784 8.36662 12.784C10.3811 12.784 12.313 13.5877 13.7374 15.0183C15.1619 16.4489 15.9621 18.3893 15.9621 20.4124H14.0632C14.0632 18.895 13.4631 17.4398 12.3947 16.3669C11.3264 15.2939 9.87745 14.6911 8.36662 14.6911C6.85578 14.6911 5.40682 15.2939 4.33849 16.3669C3.27017 17.4398 2.66999 18.895 2.66999 20.4124H0.771118ZM8.36662 11.8305C5.21923 11.8305 2.66999 9.27023 2.66999 6.10922C2.66999 2.94821 5.21923 0.387932 8.36662 0.387932C11.514 0.387932 14.0632 2.94821 14.0632 6.10922C14.0632 9.27023 11.514 11.8305 8.36662 11.8305ZM8.36662 9.92341C10.4649 9.92341 12.1644 8.21656 12.1644 6.10922C12.1644 4.00188 10.4649 2.29503 8.36662 2.29503C6.26836 2.29503 4.56887 4.00188 4.56887 6.10922C4.56887 8.21656 6.26836 9.92341 8.36662 9.92341Z"
-                            fill="black"
-                          />
-                        </svg>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        className={isActive ? "active overlay_layer" : "overlay_layer"}
-      ></div>
     </header>
   );
 };
+
 export default Header;
