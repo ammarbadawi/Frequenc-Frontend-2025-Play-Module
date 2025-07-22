@@ -1,552 +1,694 @@
-import React, { useState } from "react";
-import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
-import { Swiper, SwiperSlide } from "swiper/react";
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import "../styles/popUp.scss";
-import PopUp from "../components/popUp";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Footer } from "../components/footer/Footer";
+import "../styles/booking.css";
+
 const DetailPage = () => {
-  // pop Up related data and functionality
-  const [popUpState, setPopUpState] = useState(0);
-  const popUpData = [
-    {
-      heading: "Do you Play Singles or Double?",
-      content: "Please select if you want to book a single or double slot",
-      btn1: "Singles",
-      btn2: "Doubles",
-      btn1Redirect: "/payment",
-      btn2Redirect: "/payment",
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [selectedSport, setSelectedSport] = useState("Golf");
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState(0);
+  const [duration, setDuration] = useState(1);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedDateIndex, setSelectedDateIndex] = useState(2); // Default to Fri Sep 02
+  const [selectedCourtIndex, setSelectedCourtIndex] = useState(0); // Default to Tennis Court 1
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showOpenMatchesPopup, setShowOpenMatchesPopup] = useState(false);
+  const [selectedGameType, setSelectedGameType] = useState(null);
+
+  // Mock venue data - replace with real API call later
+  const venue = {
+    id: id,
+    name: "Venue Name",
+    rating: 4.2,
+    reviewCount: 199,
+    images: [
+      "/images/img2.png",
+      "/images/img3.png", 
+      "/images/img4.png",
+      "/images/img56.png",
+      "/images/imgd1.png"
+    ],
+    sportsOffered: ["Golf", "Tennis"],
+    timeSlots: [
+      { time: "09:00 AM", available: true, price: 14.29 },
+      { time: "10:00 AM", available: true, price: 14.29 },
+      { time: "01:00 PM", available: true, price: 14.29 },
+      { time: "02:00 PM", available: true, price: 12.00 },
+      { time: "03:00 PM", available: true, price: 14.29 },
+      { time: "04:00 PM", available: true, price: 13.50 },
+      { time: "05:00 PM", available: true, price: 15.00 },
+      { time: "06:00 PM", available: true, price: 16.50 }
+    ],
+    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem lorem elegesem sed lectinie quis. Nibh elementum vulputate odio pellentesque sit quis ac, sit ipsum. Sit rhoncus velit in sed rutrum etiam ac peristenti quam consequatur.
+
+Convallis ut tempor laoreet nibh leo. Vivamus malesuado pulvinar non rutrum risus dis nia. Risus. Porta massa velit iocuis tincidunt tortor, risus, scelerisque risus. In ut lorem pellentesque nisl lorem dictum dignissim in. Aeneam pulvinar tellus interdum ullamcorper. Vel urna, lorem, massa metius purus metus. Maecenas mollis in velit auctor cursus scelerisque eget.`,
+    location: {
+      address: "Abc street, Noida, Uttar Pradesh",
+      lat: 28.5355,
+      lng: 77.3910
     },
+    amenities: [
+      { icon: "/images/Award 1.svg", title: "Free delivery" },
+      { icon: "/images/Check double 2.svg", title: "7 days return" },
+      { icon: "/images/Check double 2.svg", title: "7 days return" },
+      { icon: "/images/Check double 2.svg", title: "7 days return" },
+      { icon: "/images/Globe 1.svg", title: "Made in USA" },
+      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
+      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
+      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
+      { icon: "/images/Check double 2.svg", title: "100% authentic" },
+      { icon: "/images/Check double 2.svg", title: "24/7 customer support" },
+      { icon: "/images/Check double 2.svg", title: "24/7 customer support" },
+      { icon: "/images/Check double 2.svg", title: "24/7 customer support" }
+    ],
+    reviews: [
+      {
+        name: "Joy Rutherford",
+        rating: 4,
+        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
+      },
+      {
+        name: "Nicole Chung",
+        rating: 4,
+        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
+      },
+      {
+        name: "Wei Arnold",
+        rating: 3,
+        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
+      },
+      {
+        name: "Judith Mejia",
+        rating: 4,
+        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
+      }
+    ]
+  };
+
+  // Generate calendar for current month
+  const generateCalendar = () => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    const calendar = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      calendar.push(null);
+    }
+    
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      calendar.push(day);
+    }
+    
+    return calendar;
+  };
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
   ];
+
+  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const handlePrevMonth = () => {
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 1));
+  };
+
+  const handleDateClick = (index) => {
+    setSelectedDateIndex(index);
+    const dateButtons = generateDateButtons();
+    if (dateButtons[index]) {
+      setSelectedDate(dateButtons[index].fullDate);
+    }
+  };
+
+  const handleCourtClick = (index) => {
+    setSelectedCourtIndex(index);
+  };
+
+  const handleOpenMatchesClick = () => {
+    setShowOpenMatchesPopup(true);
+  };
+
+  const handleCloseOpenMatchesPopup = () => {
+    setShowOpenMatchesPopup(false);
+    setSelectedGameType(null);
+  };
+
+  const handleGameTypeSelect = (type) => {
+    setSelectedGameType(type);
+    
+    // Navigate to booking policy page with game data for both singles and doubles
+    const gameData = {
+      gameType: type === 'singles' ? 'Singles' : 'Doubles',
+      venue: venue.name,
+      duration: `${duration * 60} min`,
+      sport: selectedSport,
+      court: `${selectedSport} Court ${selectedCourtIndex + 1}`,
+      surface: 'Outdoor | Synthetic Grass',
+      date: `${weekDays[selectedDate.getDay()]}, ${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()} at 1:00 Pm - 2:00 Pm`,
+      partPrice: 7, // This will be recalculated in booking policy based on game type
+      fullPrice: 14,
+      subtotal: 7.29 // This will be recalculated in booking policy based on game type
+    };
+    
+    navigate('/booking-policy', { state: gameData });
+  };
+
+  const toggleCalendar = () => {
+    setShowCalendar(!showCalendar);
+  };
+
+  const handleCalendarDateClick = (date) => {
+    setSelectedDate(date);
+    setShowCalendar(false);
+    
+    // Update the selectedDateIndex to maintain consistency
+    const dateButtons = generateDateButtons();
+    const newIndex = dateButtons.findIndex(btn => 
+      btn.fullDate.toDateString() === date.toDateString()
+    );
+    if (newIndex !== -1) {
+      setSelectedDateIndex(newIndex);
+    } else {
+      setSelectedDateIndex(2); // Default to middle position
+    }
+  };
+
+  // Generate 5 consecutive dates around the selected date
+  const generateDateButtons = () => {
+    const dates = [];
+    const startDate = new Date(selectedDate);
+    startDate.setDate(startDate.getDate() - 2); // Start 2 days before selected date
+    
+    for (let i = 0; i < 5; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+      dates.push({
+        day: weekDays[date.getDay()],
+        date: `${monthNames[date.getMonth()].substr(0, 3)} ${date.getDate().toString().padStart(2, '0')}`,
+        fullDate: date
+      });
+    }
+    return dates;
+  };
+
+  useEffect(() => {
+    // Load Google Maps script
+    // Replace YOUR_GOOGLE_MAPS_API_KEY with your actual Google Maps API key
+    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
+    
+    if (!window.google) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = initMap;
+      script.onerror = () => {
+        console.error('Google Maps API failed to load. Please check your API key.');
+        // Show fallback message
+        const mapDiv = document.getElementById('map');
+        if (mapDiv) {
+          mapDiv.innerHTML = `
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; background: #f0f0f0; color: #666; font-size: 16px; text-align: center;">
+              <div>
+                <p>Google Maps API key required</p>
+                <p style="font-size: 12px;">Please add your Google Maps API key to the environment variables</p>
+              </div>
+            </div>
+          `;
+        }
+      };
+      document.head.appendChild(script);
+    } else {
+      initMap();
+    }
+  }, []);
+
+  // Close calendar when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showCalendar && !event.target.closest('.calendar-header')) {
+        setShowCalendar(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCalendar]);
+
+  // Close open matches popup when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showOpenMatchesPopup && !event.target.closest('.open-matches-popup')) {
+        handleCloseOpenMatchesPopup();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showOpenMatchesPopup]);
+
+  const initMap = () => {
+    if (window.google && document.getElementById('map')) {
+      const map = new window.google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: { lat: venue.location.lat, lng: venue.location.lng },
+        styles: [
+          {
+            "featureType": "poi",
+            "elementType": "labels",
+            "stylers": [{ "visibility": "off" }]
+          }
+        ]
+      });
+
+      new window.google.maps.Marker({
+        position: { lat: venue.location.lat, lng: venue.location.lng },
+        map: map,
+        title: venue.name,
+        animation: window.google.maps.Animation.DROP
+      });
+    }
+  };
 
   return (
     <>
-      <div>
-        <section class="detailpage">
-          <div class="container">
-            <div class="rownamerow">
-              <div class="rowname">
-                <h1>Venue Name</h1>
-                <div class="ratingpage">
-                  <div class="ratingstar">
-                    <i class="fa fa-star active"></i>
-                    <i class="fa fa-star active"></i>
-                    <i class="fa fa-star active"></i>
-                    <i class="fa fa-star active"></i>
-                    <i class="fa fa-star"></i>
+    <div className="detailpage">
+        <div className="container" style={{ paddingTop: '20px' }}>
+                {/* Header Section */}
+        <div className="row">
+          <div className="col-12">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', width: '100%' }}>
+              <div style={{ flex: 1 }}>
+                <h1 style={{ fontSize: '32px', fontWeight: '600', margin: '0 0 10px 0' }}>{venue.name}</h1>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+                    {[1,2,3,4,5].map((star) => (
+                      <span key={star} style={{ color: star <= Math.floor(venue.rating) ? '#FFD700' : '#ddd', fontSize: '16px' }}>★</span>
+                    ))}
+                    <span style={{ marginLeft: '8px', fontSize: '16px', fontWeight: '600' }}>{venue.rating}</span>
+                    <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue.reviewCount} reviews)</span>
                   </div>
-                  <span class="ratingno">4.2</span>
-                  <span class="ratingreview">(99 reviews)</span>
                 </div>
               </div>
-
-              <div class="buttonsdets">
-                <a href="#" class="btn wishlist">
-                  {" "}
-                  <i class="fa fa-heart"></i> Wishlist
-                </a>
-                <a href="#" class="btn Share">
-                  {" "}
-                  <i class="fa fa-share-alt mr-2" aria-hidden="true"></i> Share
-                </a>
-              </div>
-            </div>
-
-            <div class="imagerow">
-              <div class="col1">
-                <img src="images/imgd1.png" />
-              </div>
-              <div class="col2">
-                <div class="col2i">
-                  <img src="images/img2.png" />
-                </div>
-                <div class="col2i">
-                  <img src="images/img3.png" />
-                </div>
-              </div>
-
-              <div class="col2">
-                <div class="col2i">
-                  <img src="images/img4.png" />
-                </div>
-                <div class="col2i">
-                  <img src="images/img56.png" />
-                </div>
-              </div>
-            </div>
-
-            <div class="rownamerow2">
-              <div class="rowname2">
-                <h2 class="sitetitle2">Book</h2>
-                <p>Create a private match where you can invite your friends</p>
-              </div>
-
-              <div class="buttonsdets2">
-                <a href="#" class="btn Openmatches">
-                  {" "}
-                  Open Matches
-                </a>
+              <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
+                <button style={{
+                  background: '#7930d8',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}>
+                  Wishlist
+                </button>
+                <button style={{
+                  background: 'transparent',
+                  color: '#7930d8',
+                  border: '1px solid #7930d8',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  cursor: 'pointer'
+                }}>
+                  Share
+                </button>
               </div>
             </div>
           </div>
-        </section>
+        </div>
 
-        <section class="bookingsec">
-          <div class="container">
-            <div class="row">
-              <div class="col-md-4 col-12">
-                <div class="bokmenubox">
-                  <h3 class="titleh3">Sports offered by venue</h3>
-                  <div class="tabbutton">
-                    <button class="tabsbutton">Golf</button>
-                    <button class="tabsbutton active">Tennis</button>
-                  </div>
+        {/* Image Gallery */}
+        <div className="row" style={{ marginBottom: '30px' }}>
+          <div className="col-md-8">
+            <div style={{ 
+              width: '100%', 
+              height: '300px', 
+              borderRadius: '12px', 
+              overflow: 'hidden',
+              backgroundImage: `url(${venue.images[currentImageIndex]})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }} />
+          </div>
+          <div className="col-md-4">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', height: '300px' }}>
+              {venue.images.slice(1, 5).map((image, index) => (
+                <div
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index + 1)}
+                  style={{
+                    backgroundImage: `url(${image})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    border: currentImageIndex === index + 1 ? '2px solid #7930d8' : 'none'
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
 
-                  <h3 class="titleh3">Sports offered by venue</h3>
-                  <div class="tabbutton2">
-                    <button class="tabsbutton2 active">Tennis Court 1</button>
-                    <button class="tabsbutton2">Tennis Court 2</button>
-                    <button class="tabsbutton2 ">Tennis Court 3</button>
-                  </div>
-
-                  <div class="durationboob">
-                    <h3 class="titleh3">Duration</h3>
-                    <div class="bookingdu">
-                      <span class="bntad">
-                        <svg
-                          width="10"
-                          height="1"
-                          viewBox="0 0 10 1"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M1 0.497314H8.58334"
-                            stroke="#1E1E1E"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                      <span>1 Hr</span>
-                      <span class="bntad">
-                        <svg
-                          width="9"
-                          height="10"
-                          viewBox="0 0 9 10"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M4.50261 1.20557V8.7889M0.710938 4.99723H8.29427"
-                            stroke="#1E1E1E"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </span>
-                    </div>
-                  </div>
-                </div>
+        {/* Booking Section */}
+        <div className="row">
+            <div className="booking-header">
+              <div className="booking-header-content">
+                <h3 className="booking-title">Book</h3>
+                <p className="booking-subtitle">Create a private match where you can invite your friends</p>
               </div>
-
-              <div class="col-md-8 col-12">
-                <div class="slotava">
-                  <div class="calenderbox">
-                    September , 2024 <i class="fa fa-angle-down"></i>
-                  </div>
-
-                  <div class="sliderslot">
-                    <Swiper
-                      modules={[Navigation]}
-                      spaceBetween={40}
-                      slidesPerView={5}
-                      navigation
-                      pagination={{ clickable: true }}
-                      onSwiper={(swiper) => console.log(swiper)}
-                      onSlideChange={() => console.log("slide change")}
-                      breakpoints={{
-                        320: {
-                          slidesPerView: 3,
-                          spaceBetween: 10,
-                        },
-
-                        480: {
-                          slidesPerView: 3,
-                          spaceBetween: 20,
-                        },
-
-                        768: {
-                          slidesPerView: 3,
-                          spaceBetween: 30,
-                        },
-
-                        1024: {
-                          slidesPerView: 4,
-                          spaceBetween: 40,
-                        },
-
-                        1200: {
-                          slidesPerView: 5,
-                          spaceBetween: 40,
-                        },
-                      }}
-                    >
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider active">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>{" "}
-                      <SwiperSlide>
-                        <div class="itemslider">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider ">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        <div class="itemslider ">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                      <SwiperSlide>
-                        {" "}
-                        <div class="itemslider ">
-                          <span>Wed,</span> Aug 30
-                        </div>
-                      </SwiperSlide>
-                    </Swiper>
-                  </div>
-
-                  <div class="totalslot">
-                    <p class="totalitems">10 Slots</p>
-                    <ul>
-                      <li class="select">
-                        <span>01:00</span> PM
-                      </li>
-                      <li>
-                        <span>02:00</span> PM
-                      </li>
-                      <li>
-                        <span>03:00</span> PM
-                      </li>
-                      <li>
-                        <span>04:00</span> PM
-                      </li>
-                      <li>
-                        <span>05:00</span> PM
-                      </li>
-                      <li>
-                        <span>06:00</span> PM
-                      </li>
-                      <li>
-                        <span>07:00</span> PM
-                      </li>
-                      <li>
-                        <span>08:00</span> PM
-                      </li>
-                    </ul>
-                  </div>
-                  <div class="bookbuttonf">
-                    <button
-                      class="btn bookbutton"
-                      onClick={() => setPopUpState(1)}
-                    >
-                      Book
-                    </button>
-                    <div class="netamt">Net Amount $14.29</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="description">
-          <div class="container">
-            <div class="descriptonb">
-              <h4 class="sitetitle2">Venue Description</h4>
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem
-                lorem aliquam sed lacinia quis. Nibh dictumst vulputate odio
-                pellentesque sit quis ac, sit ipsum. Sit rhoncus velit in sed
-                massa arcu sit eu. Vitae et vitae eget lorem non dui.
-                Sollicitudin ut mi adipiscing duis. Convallis in semper laoreet
-                nibh leo. Vivamus malesuada ipsum pulvinar non rutrum risus dui,
-                risus. Purus massa velit iaculis tincidunt tortor, risus,
-                scelerisque risus. In at lorem pellentesque orci aenean dictum
-                dignissim in. Aenean pulvinar diam interdum ullamcorper. Vel
-                urna, tortor, massa metus purus metus. Maecenas mollis in velit
-                auctor cursus scelerisque eget.{" "}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <section class="Amenitiessec">
-          <div class="container">
-            <div class="Amenities">
-              <h4 class="sitetitle2">Venue Description</h4>
-              <ul>
-                <li>
-                  <img src="images/Award%201.svg" /> Free delivery
-                </li>
-                <li>
-                  <img src="images/Check%20double%202.svg" /> 7 days return
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/F%20chat%201.svg" /> 7 days return
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/F%20chat%201.svg" /> 7 days return
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/Globe%201.svg" /> Made in USA
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/Award%201.svg" /> 2 years guarantee
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/Award%201.svg" /> 2 years guarantee
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/Award%201.svg" /> 2 years guarantee
-                </li>
-                <li>
-                  {" "}
-                  <img src="images/Award%201.svg" /> 100% authentic
-                </li>
-                <li>
-                  <img src="images/Check%20double%202.svg" /> 24/7 customer
-                  support
-                </li>
-                <li>
-                  <img src="images/Check%20double%202.svg" /> 24/7 customer
-                  support
-                </li>
-                <li>
-                  <img src="images/Check%20double%202.svg" /> 24/7 customer
-                  support
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-        <section class="locationsec">
-          <div class="container">
-            <div class="locationspage">
-              <h4 class="sitetitle2">Venue Location</h4>
-              <div>
-                <iframe
-                  width="100%"
-                  height="400"
-                  frameborder="0"
-                  scrolling="no"
-                  marginheight="0"
-                  marginwidth="0"
-                  src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=1%20Grafton%20Street,%20Dublin,%20Ireland+(My%20Business%20Name)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
-                >
-                  <a href="#">Abc street, Noida, Uttar Pradesh</a>
-                </iframe>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section class="Termscndsec">
-          <div class="container">
-            <div class="Termscnd">
-              <h4 class="sitetitle2"> Terms & Conditions</h4>
-              <button class="readmore">
-                <svg
-                  width="34"
-                  height="34"
-                  viewBox="0 0 34 34"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M17 5.1001L17 28.9001"
-                    stroke="#171A1F"
-                    stroke-width="2.04"
-                    stroke-miterlimit="10"
-                    stroke-linecap="square"
-                  />
-                  <path
-                    d="M28.9016 17L5.10156 17"
-                    stroke="#171A1F"
-                    stroke-width="2.04"
-                    stroke-miterlimit="10"
-                    stroke-linecap="square"
-                  />
-                </svg>
+              <button className="open-matches-btn" onClick={handleOpenMatchesClick}>
+                Open Matches
               </button>
             </div>
-          </div>
-        </section>
 
-        <section class="Reviewssec">
-          <div class="container">
-            <div class="ratingusers">
-              <h4 class="sitetitle2 d-flex">
-                {" "}
-                Reviews{" "}
-                <div class="ratingpage">
-                  <div class="ratingstar">
-                    <i class="fa fa-star active"></i>
-                  </div>
-                  <span class="ratingno">4.2</span>
-                  <span class="ratingreview">(99 reviews)</span>
-                </div>
-              </h4>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="userratingbox">
-                    <div class="userratinglist">
-                      <div class="userimg">
-                        <img src="images/Rectangle.png" />
-                      </div>
-                      <div class="ratingdata">
-                        <h4>Jay Rutherford</h4>
-                        <div class="ratingstar">
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="usermsg">
-                      Nulla laboris fugiat fugiat minim minim excepteur eiusmod
-                      quis. Laborum est minim id cillum nostrud cillum
-                      consectetur.
-                    </div>
+            {/* Main Container - Full width */}
+            <div className="booking-container">
+              
+              {/* Left Side - Sports Section */}
+              <div className="sports-section">
+                {/* Sports Offered by venue */}
+                <div className="sports-offered">
+                  <h4 className="section-title">Sports offered by venue</h4>
+                  <div className="sports-buttons">
+                    <button className={`sport-btn ${selectedSport === 'Golf' ? 'active' : ''}`} onClick={() => setSelectedSport('Golf')}>
+                      Golf
+                    </button>
+                    <button className={`sport-btn ${selectedSport === 'Tennis' ? 'active' : ''}`} onClick={() => setSelectedSport('Tennis')}>
+                      Tennis
+                    </button>
                   </div>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="userratingbox">
-                    <div class="userratinglist">
-                      <div class="userimg">
-                        <img src="images/Rectangle.png" />
-                      </div>
-                      <div class="ratingdata">
-                        <h4>Jay Rutherford</h4>
-                        <div class="ratingstar">
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="usermsg">
-                      Nulla laboris fugiat fugiat minim minim excepteur eiusmod
-                      quis. Laborum est minim id cillum nostrud cillum
-                      consectetur.
-                    </div>
+                {/* Tennis Courts */}
+                <div className="courts-section">
+                  <h4 className="section-title">Sports offered by venue</h4>
+                  <div className="courts-buttons">
+                    <button 
+                      className={`court-btn ${selectedCourtIndex === 0 ? 'active' : ''}`}
+                      onClick={() => handleCourtClick(0)}
+                    >
+                      Tennis Court 1
+                    </button>
+                    <button 
+                      className={`court-btn ${selectedCourtIndex === 1 ? 'active' : ''}`}
+                      onClick={() => handleCourtClick(1)}
+                    >
+                      Tennis Court 2
+                    </button>
+                    <button 
+                      className={`court-btn ${selectedCourtIndex === 2 ? 'active' : ''}`}
+                      onClick={() => handleCourtClick(2)}
+                    >
+                      Tennis Court 3
+                    </button>
                   </div>
                 </div>
 
-                <div class="col-md-6">
-                  <div class="userratingbox">
-                    <div class="userratinglist">
-                      <div class="userimg">
-                        <img src="images/Rectangle.png" />
-                      </div>
-                      <div class="ratingdata">
-                        <h4>Jay Rutherford</h4>
-                        <div class="ratingstar">
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="usermsg">
-                      Nulla laboris fugiat fugiat minim minim excepteur eiusmod
-                      quis. Laborum est minim id cillum nostrud cillum
-                      consectetur.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="col-md-6">
-                  <div class="userratingbox">
-                    <div class="userratinglist">
-                      <div class="userimg">
-                        <img src="images/Rectangle.png" />
-                      </div>
-                      <div class="ratingdata">
-                        <h4>Jay Rutherford</h4>
-                        <div class="ratingstar">
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                          <i class="fa fa-star active"></i>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="usermsg">
-                      Nulla laboris fugiat fugiat minim minim excepteur eiusmod
-                      quis. Laborum est minim id cillum nostrud cillum
-                      consectetur.
-                    </div>
+                {/* Duration */}
+                <div className="duration-section">
+                  <h4 className="section-title">Duration</h4>
+                  <div className="duration-controls">
+                    <button 
+                      className="duration-btn"
+                      onClick={() => duration > 1 && setDuration(duration - 1)}
+                    >
+                      -
+                    </button>
+                    <span className="duration-display">{duration} Hr</span>
+                    <button 
+                      className="duration-btn"
+                      onClick={() => setDuration(duration + 1)}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               </div>
+
+              {/* Right Side - Calendar and Booking */}
+              <div className="calendar-section">
+                {/* Calendar Header */}
+                <div className="calendar-header">
+                  <div className="date-navigation">
+                    <div className="month-year">
+                      <h4 className="month-display">
+                        {monthNames[selectedDate.getMonth()]} , {selectedDate.getFullYear()}
+                      </h4>
+                      <span className="dropdown-arrow" onClick={toggleCalendar}>▼</span>
+                    </div>
+                  </div>
+                  {showCalendar && (
+                    <div className="calendar-popup">
+                      <div className="calendar-grid">
+                                                 {generateCalendar().map((day, index) => (
+                           <button
+                             key={index}
+                             className={`calendar-day ${!day ? 'empty' : ''} ${
+                               day && day === selectedDate.getDate() ? 'selected' : ''
+                             }`}
+                             onClick={() => day && handleCalendarDateClick(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day))}
+                             disabled={!day}
+                           >
+                             {day}
+                           </button>
+                         ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Date Buttons */}
+                <div className="date-buttons">
+                  <button className="nav-arrow" onClick={handlePrevMonth}>
+                    &lt;
+                  </button>
+                  {generateDateButtons().map((item, index) => (
+                    <button
+                      key={index}
+                      className={`date-btn ${selectedDateIndex === index ? 'active' : ''}`}
+                      onClick={() => handleDateClick(index)}
+                    >
+                      <div>{item.day}</div>
+                      <div>{item.date}</div>
+                    </button>
+                  ))}
+                  <button className="nav-arrow" onClick={handleNextMonth}>
+                    &gt;
+                  </button>
+                </div>
+
+                {/* Slots Count */}
+                <div className="slots-count">
+                  <span className="slots-text">10 Slots</span>
+                </div>
+
+                {/* Time Slots */}
+                <div className="time-slots">
+                  {[
+                    { time: '01:00', suffix: 'PM', index: 0 },
+                    { time: '02:00', suffix: 'PM', index: 1 },
+                    { time: '03:00', suffix: 'PM', index: 2 },
+                    { time: '04:00', suffix: 'PM', index: 3 },
+                    { time: '06:00', suffix: 'PM', index: 4 },
+                    { time: '07:00', suffix: 'PM', index: 5 },
+                    { time: '08:00', suffix: 'PM', index: 6 },
+                    { time: '09:00', suffix: 'PM', index: 7 }
+                  ].map((slot, index) => (
+                    <button
+                      key={index}
+                      className={`time-slot ${selectedTimeSlot === index ? 'selected' : ''}`}
+                      onClick={() => setSelectedTimeSlot(index)}
+                    >
+                      {slot.time} <span className="time-suffix">{slot.suffix}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Pay Button */}
+                <button className="pay-button" onClick={() => alert(`Booking confirmed!`)}>
+                  Pay $14.29
+                </button>
+              </div>
+          </div>
+        </div>
+
+        {/* Venue Description */}
+        <div style={{ marginTop: '50px', marginBottom: '30px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '15px' }}>Venue Description</h3>
+          <p style={{ lineHeight: '1.6', color: '#555', marginBottom: '20px' }}>
+            {venue.description}
+          </p>
+        </div>
+
+        {/* Amenities */}
+        <div style={{ marginBottom: '30px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Amenities</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+            {venue.amenities.map((amenity, index) => (
+              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <img 
+                  src={amenity.icon} 
+                  alt={amenity.title}
+                  style={{ width: '20px', height: '20px' }}
+                />
+                <span style={{ fontSize: '14px' }}>{amenity.title}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Venue Location */}
+        <div style={{ marginBottom: '30px' }}>
+          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Venue Location</h3>
+          <div style={{ 
+            position: 'relative', 
+            borderRadius: '12px', 
+            overflow: 'hidden',
+            height: '300px',
+            background: '#f0f0f0'
+          }}>
+            <div id="map" style={{ width: '100%', height: '100%' }} />
+            <div style={{
+              position: 'absolute',
+              bottom: '20px',
+              left: '20px',
+              background: 'rgba(0,0,0,0.8)',
+              color: 'white',
+              padding: '10px 15px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <span>📍</span>
+              <span style={{ fontSize: '14px' }}>{venue.location.address}</span>
+              <span style={{ cursor: 'pointer', fontSize: '18px' }}>👁️</span>
             </div>
           </div>
-        </section>
-      </div>
+        </div>
 
-      {/* Pop for Single/Double Asking ... */}
-      <PopUp
-        popUpState={popUpState}
-        setPopUpState={setPopUpState}
-        data={popUpData}
-      />
-    </>
-  );
-};
+        {/* Terms & Conditions */}
+        <div style={{ marginBottom: '30px' }}>
+          <div style={{ 
+            border: '1px solid #e0e0e0', 
+            borderRadius: '8px',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              background: '#f8f9fa',
+              padding: '15px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              cursor: 'pointer'
+            }}>
+              <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Terms & Conditions</h4>
+              <span style={{ fontSize: '20px' }}>+</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Reviews */}
+        <div style={{ marginBottom: '50px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>Reviews</h3>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ color: '#FFD700', fontSize: '16px' }}>★</span>
+              <span style={{ marginLeft: '5px', fontSize: '16px', fontWeight: '600' }}>{venue.rating}</span>
+              <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue.reviewCount} reviews)</span>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            {venue.reviews.map((review, index) => (
+              <div key={index} style={{ 
+                background: '#f8f9fa', 
+                padding: '20px', 
+                borderRadius: '12px' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '50%',
+                    background: '#7930d8',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    fontSize: '16px',
+                    fontWeight: '600'
+                  }}>
+                    {review.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '14px' }}>{review.name}</div>
+                    <div style={{ display: 'flex' }}>
+                      {[1,2,3,4,5].map((star) => (
+                        <span key={star} style={{ color: star <= review.rating ? '#FFD700' : '#ddd', fontSize: '12px' }}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#555', margin: 0 }}>
+                  {review.comment}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+              </div>
+
+        {/* Open Matches Popup */}
+        {showOpenMatchesPopup && (
+          <div className="popup-overlay">
+            <div className="open-matches-popup">
+              <button className="close-btn" onClick={handleCloseOpenMatchesPopup}>
+                ×
+              </button>
+              <h2 className="popup-title">Do you Play Singles or Doubles?</h2>
+              <div className="game-type-buttons">
+                <button 
+                  className={`game-type-btn ${selectedGameType === 'singles' ? 'selected' : ''}`}
+                  onClick={() => handleGameTypeSelect('singles')}
+                >
+                  Singles
+                </button>
+                <button 
+                  className={`game-type-btn ${selectedGameType === 'doubles' ? 'selected' : ''}`}
+                  onClick={() => handleGameTypeSelect('doubles')}
+                >
+                  Doubles
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        </div>
+        <Footer />
+        </>
+   );
+ };
+
 export default DetailPage;

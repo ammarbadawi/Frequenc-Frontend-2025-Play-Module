@@ -100,12 +100,12 @@ export const Footer = () => {
               <div style={logoImgContainerStyle}>
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets/TEMP/320267c4859a94dfb3c51a7711129a8e2fc3479a"
-                  alt=""
+                  alt="FrequenC Play Logo Icon"
                   style={{width: '47px', height: '39px', position: 'absolute', left: 0, top: 0}}
                 />
                 <img
                   src="https://cdn.builder.io/api/v1/image/assets/TEMP/602f7fad6a2783427d1dc445a2b1a5f3655080be"
-                  alt=""
+                  alt="FrequenC Play Logo Text"
                   style={{width: '76px', height: '28px', position: 'absolute', left: '51px', top: '5px'}}
                 />
               </div>

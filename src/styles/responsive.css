@@ -218,4 +218,248 @@
             font-size: 20px;}
             .rownamerow2 {
                 display: block;}
+
+	/* Fix spacing for find-service section */
+	.find-service .col-md-3 {
+		margin-bottom: 20px;
+	}
+
+	.find-service .Main_serivces {
+		border-right: 0;
+		border-bottom: 1px solid #eaeaea;
+		margin-bottom: 15px;
+		padding-bottom: 15px;
+	}
+
+	.find-service .col-md-3:last-child .Main_serivces {
+		border-bottom: 0;
+		margin-bottom: 0;
+	}
+
+	/* Fix spacing for top-services section */
+	.top-services .col-md-4 {
+		margin-bottom: 20px;
+	}
+
+	.top-services .dv {
+		margin-bottom: 20px;
+	}
+
+	/* Fix spacing for openmatch section */
+	.openmatch .col-md-4 {
+		margin-bottom: 20px;
+	}
+
+	.openmatch .matchsec {
+		margin-bottom: 20px;
+	}
+
+	/* Fix cofrnew and cofrnewf responsive layout */
+	.cofrnewf {
+		flex-direction: column;
+		padding: 30px 20px;
+		margin: 10px;
+	}
+
+	.coinew {
+		width: 100%;
+		margin-bottom: 20px;
+		text-align: center;
+	}
+
+	.socialsubs {
+		width: 100%;
+		padding: 0;
+	}
+
+	.subsform {
+		flex-direction: row;
+		gap: 10px;
+		padding: 10px 12px;
+	}
+
+	.subsform .form-control {
+		margin-bottom: 0;
+		flex: 1;
+	}
+
+	.btn-submit {
+		padding: 10px 15px;
+		font-size: 12px;
+		white-space: nowrap;
+	}
+
+}
+
+/* Tablet responsive styles */
+@media(max-width: 768px) and (min-width: 601px) {
+	
+	/* Fix spacing for find-service section on tablet */
+	.find-service .col-md-3 {
+		margin-bottom: 15px;
+	}
+
+	.find-service .Main_serivces {
+		border-right: 0;
+		border-bottom: 1px solid #eaeaea;
+		margin-bottom: 10px;
+		padding-bottom: 10px;
+	}
+
+	/* Fix spacing for top-services section on tablet */
+	.top-services .col-md-4 {
+		margin-bottom: 15px;
+	}
+
+	.top-services .dv {
+		margin-bottom: 15px;
+	}
+
+	/* Fix spacing for openmatch section on tablet */
+	.openmatch .col-md-4 {
+		margin-bottom: 15px;
+	}
+
+	.openmatch .matchsec {
+		margin-bottom: 15px;
+	}
+
+	/* Fix cofrnew and cofrnewf tablet layout */
+	.cofrnewf {
+		flex-direction: column;
+		padding: 25px 15px;
+		margin: 15px;
+	}
+
+	.coinew {
+		width: 100%;
+		margin-bottom: 15px;
+		text-align: center;
+	}
+
+	.socialsubs {
+		width: 100%;
+		padding: 0;
+	}
+
+	.subsform {
+		flex-direction: row;
+		gap: 10px;
+		padding: 10px 12px;
+	}
+
+	.subsform .form-control {
+		flex: 1;
+	}
+
+}
+
+/* Large tablet/small desktop responsive styles */
+@media(max-width: 992px) and (min-width: 769px) {
+	
+	/* Fix spacing for find-service section on large tablet */
+	.find-service .col-md-3 {
+		margin-bottom: 10px;
+	}
+
+	/* Fix spacing for top-services section on large tablet */
+	.top-services .col-md-4 {
+		margin-bottom: 10px;
+	}
+
+	.top-services .dv {
+		margin-bottom: 10px;
+	}
+
+	/* Fix spacing for openmatch section on large tablet */
+	.openmatch .col-md-4 {
+		margin-bottom: 10px;
+	}
+
+	.openmatch .matchsec {
+		margin-bottom: 10px;
+	}
+
+}
+
+/* Detail Page Responsive Styles */
+@media(max-width: 768px) {
+	.detailpage .container {
+		padding-left: 15px !important;
+		padding-right: 15px !important;
+	}
+
+	.detailpage .row {
+		margin-left: -10px;
+		margin-right: -10px;
+	}
+
+	.detailpage .row > div {
+		padding-left: 10px;
+		padding-right: 10px;
+	}
+
+	.detailpage h1 {
+		font-size: 20px !important;
+		margin-bottom: 15px !important;
+	}
+
+	.detailpage h3 {
+		font-size: 18px !important;
+	}
+
+	.detailpage h4 {
+		font-size: 16px !important;
+	}
+
+	.detailpage .col-md-4 {
+		margin-top: 25px;
+	}
+
+	.detailpage .col-md-8 {
+		margin-bottom: 20px;
+	}
+
+	/* Image Gallery Mobile */
+	.detailpage .row .col-md-4 > div {
+		height: 200px !important;
+		grid-template-columns: 1fr !important;
+		gap: 4px !important;
+	}
+
+	.detailpage .row .col-md-8 > div {
+		height: 200px !important;
+	}
+
+	/* Map Mobile */
+	.detailpage #map {
+		height: 250px !important;
+	}
+
+	/* Button Mobile */
+	.detailpage [style*="display: flex"][style*="justifyContent: space-between"] {
+		flex-direction: column !important;
+		align-items: flex-start !important;
+		gap: 15px !important;
+	}
+
+	.detailpage [style*="display: flex"][style*="gap: 10px"] {
+		flex-direction: column !important;
+		gap: 10px !important;
+	}
+
+	.detailpage [style*="display: flex"][style*="gap: 10px"]:last-child {
+		flex-direction: row !important;
+		gap: 10px !important;
+	}
+}
+
+@media(max-width: 480px) {
+	.detailpage [style*="grid-template-columns: repeat(2, 1fr)"] {
+		grid-template-columns: 1fr !important;
+	}
+
+	.detailpage [style*="grid-template-columns: repeat(3, 1fr)"] {
+		grid-template-columns: repeat(2, 1fr) !important;
+	}
 }

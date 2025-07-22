@@ -3,25 +3,41 @@
   border-radius: 12px;
   padding: 4rem 2rem;
   width: 70rem;
-  max-height: 30rem;
+  max-width: 90vw;
+  max-height: 85vh;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  overflow-y: scroll;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 
   .close-btn {
     position: absolute;
-    right: 10px;
-    top: 10px;
+    right: -15px;
+    top: -15px;
     cursor: pointer;
-    font-size: 1.2rem;
-    color: #444;
+    font-size: 20px;
+    color: #000;
+    background: white;
+    border: 1.5px solid #000;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1001;
 
     &:hover {
-      color: #7f56da;
+      background-color: #f8f8f8;
+      transform: scale(1.1);
     }
   }
 
@@ -29,32 +45,7 @@
     font-size: 1.5rem;
     color: #333;
     margin-bottom: 20px;
-  }
-
-  // friend type selection
-  .friend-type {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 1rem;
-
-    button {
-      padding: 0.5rem 2rem;
-      border-radius: 6px;
-      border: 0.5px solid rgba(121, 48, 216, 0.5);
-      background: #7930d8;
-      color: white;
-      cursor: pointer;
-    }
-
-    .guest {
-      border-radius: 6px;
-      border: 0.5px solid rgba(121, 48, 216, 0.5);
-      background: rgba(121, 48, 216, 0.07);
-      color: grey;
-    }
+    flex-shrink: 0;
   }
 
   .input-row {
@@ -62,6 +53,7 @@
     align-items: flex-end;
     gap: 15px;
     margin-bottom: 20px;
+    flex-shrink: 0;
 
     .input-group {
       display: flex;
@@ -95,9 +87,15 @@
       border-radius: 8px;
       cursor: pointer;
       font-weight: 500;
+      white-space: nowrap;
 
       &:hover {
         background-color: #6845b5;
+      }
+
+      &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
       }
     }
   }
@@ -106,16 +104,17 @@
   h3 {
     font-size: 1.2rem;
     color: #555;
-    margin: 2rem 0;
-    margin-bottom: 10px;
+    margin: 2rem 0 10px 0;
+    flex-shrink: 0;
   }
 
   ul {
-    list-style: none; // Removes bullet points
+    list-style: none;
     padding: 0;
-    margin-top: 10px;
-    max-height: 250px;
+    margin: 0;
+    flex: 1;
     overflow-y: auto;
+    max-height: 250px;
 
     .friend-item {
       display: flex;
@@ -144,8 +143,8 @@
           height: 40px;
           border-radius: 50%;
           background: #d3d3d3;
-          color: #333;
-          font-size: 1rem;
+          color: #666;
+          font-size: 16px;
           font-weight: 600;
           display: flex;
           align-items: center;
@@ -158,6 +157,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        gap: 8px;
 
         .add-btn {
           background: #7f56da;
@@ -167,7 +167,6 @@
           border-radius: 6px;
           cursor: pointer;
           font-weight: 500;
-          margin-right: 5px;
 
           &:hover {
             background: #6845b5;
@@ -177,41 +176,65 @@
         .delete-btn {
           background: none;
           border: none;
-          color: #d9534f;
-          font-size: 1.2rem;
+          color: #000;
+          font-size: 16px;
           cursor: pointer;
+          padding: 8px;
+          border-radius: 4px;
+          transition: all 0.3s ease;
 
           &:hover {
-            color: #c9302c;
+            background: #ffebee;
+            color: #d32f2f;
           }
         }
       }
     }
   }
 
-  /* Fixing the Save & Next button */
-  .save-next-btn {
-    width: 100%;
+  /* Popup Footer with Copy Link and Save & Next */
+  .popup-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     margin-top: 2rem;
+    flex-shrink: 0;
 
-    button {
+    .copy-link-btn {
+      background: none;
+      border: none;
+      color: #7f56da;
+      font-weight: 500;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 0;
+
+      &:hover {
+        color: #6845b5;
+      }
+    }
+
+    .save-next-btn {
       border-radius: 5.758px;
       border: 0.48px solid rgba(121, 48, 216, 0.5);
       background: #7930d8;
-      border: none;
+      color: white;
       padding: 12px 20px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: 600;
-      display: block;
-      max-width: 250px; // Prevents full width
-      color: white;
+      max-width: 250px;
 
       &:hover {
         background-color: #b099df;
+      }
+
+      &:disabled {
+        background: rgba(121, 48, 216, 0.07);
+        color: grey;
+        border: 0.48px solid rgba(121, 48, 216, 0.50);
+        cursor: not-allowed;
       }
     }
   }

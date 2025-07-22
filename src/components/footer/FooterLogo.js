@@ -1,5 +1,4 @@
 import React from "react";
-import logo from "../../assets/images/logo.svg";
 
 export function FooterLogo() {
   const descriptionStyle = {
@@ -12,7 +11,7 @@ export function FooterLogo() {
   return (
     <div className="mb-4">
       <img
-        src={logo}
+        src="/logo.png"
         alt="Frequenc Logo"
         className="h-[39px]"
       />

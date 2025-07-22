@@ -1,15 +1,36 @@
 import React, { use, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/addFriends.scss";
 import addFriend from "../assets/images/addFriend.svg";
 import AddFriendPopUp from "../components/addPlayersAndFriends/addFriendPopUp";
 import PlayerLists from "../components/addPlayersAndFriends/playerLists";
+
 const AddFriends = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const gameType = location.state?.gameType || 'Singles';
+  
   const [showAddFriendPopUp, setShowAddFriendPopUp] = useState(false);
   const toggleAddFriendPopUp = () => setShowAddFriendPopUp(!showAddFriendPopUp);
   const [friendsList, setFriendsList] = useState([]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // for showing player list
   const [hide, setHide] = useState(true);
+
+  // Calculate max players and current count
+  const maxPlayers = gameType === 'Doubles' ? 4 : 2;
+  const currentCount = friendsList.length + (isPlaying ? 1 : 0);
+  const maxCanAdd = gameType === 'Doubles' ? (isPlaying ? 3 : 4) : (isPlaying ? 1 : 2);
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
+  const handleSaveAndNext = () => {
+    // Navigate to next step or home
+    navigate('/');
+  };
 
   useEffect(() => {
     if (friendsList.length != 0) setHide(false);
@@ -21,11 +42,15 @@ const AddFriends = () => {
       <div className="add-friends">
         <div class="player-container">
           <div class="player-header">
-            <span class="players-count global-h1">Players (1/4)</span>
+            <span class="players-count global-h1">Players ({currentCount}/{maxPlayers})</span>
             <div class="toggle-switch">
               <span class="toggle-label">Are you Playing?</span>
               <label class="switch">
-                <input type="checkbox" />
+                <input 
+                  type="checkbox" 
+                  checked={isPlaying}
+                  onChange={(e) => setIsPlaying(e.target.checked)}
+                />
                 <span class="slider"></span>
               </label>
             </div>
@@ -34,15 +59,26 @@ const AddFriends = () => {
           <div className="break"></div>
 
           {!hide ? (
-            <PlayerLists PlayerLists={friendsList} />
+            <>
+              <PlayerLists PlayerLists={friendsList} gameType={gameType} />
+              {friendsList.length < maxCanAdd && (
+                <div className="add-player-bottom">
+                  <button className="add-player-btn-bottom" onClick={toggleAddFriendPopUp}>
+                    👤 Add Player
+                  </button>
+                </div>
+              )}
+            </>
           ) : (
             <div class="add-player-section">
               <div class="player-icon">
                 <img src={addFriend} alt="Add Player Icon" />
               </div>
-              <button class="add-player-btn" onClick={toggleAddFriendPopUp}>
-                Add Player
-              </button>
+              {friendsList.length < maxCanAdd && (
+                <button class="add-player-btn" onClick={toggleAddFriendPopUp}>
+                  Add Player
+                </button>
+              )}
             </div>
           )}
 
@@ -50,21 +86,24 @@ const AddFriends = () => {
             class="save-and-back"
             style={{ display: hide ? "none" : "flex" }}
           >
-            <button>Back</button>
-            <button className="save">Save and Next</button>
+            <button onClick={handleBack}>Back</button>
+            <button className="save" onClick={handleSaveAndNext}>Save and Next</button>
           </div>
         </div>
       </div>
 
       {/* add Friend Pop Up */}
-      {showAddFriendPopUp && (
-        <AddFriendPopUp
-          showAddFriendPopUp={showAddFriendPopUp}
-          setShowAddFriendPopUp={setShowAddFriendPopUp}
-          friendsList={friendsList}
-          setFriendsList={setFriendsList}
-        />
-      )}
+              {showAddFriendPopUp && (
+          <AddFriendPopUp
+            showAddFriendPopUp={showAddFriendPopUp}
+            setShowAddFriendPopUp={setShowAddFriendPopUp}
+            friendsList={friendsList}
+            setFriendsList={setFriendsList}
+            maxCanAdd={maxCanAdd}
+            gameType={gameType}
+            isPlaying={isPlaying}
+          />
+        )}
     </>
   );
 };

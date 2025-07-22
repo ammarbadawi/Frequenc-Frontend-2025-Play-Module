@@ -453,56 +453,72 @@ ul.topmenu {
   justify-content: flex-end;
   align-items: center;
 }
-.cofrnew::after {
-  content: "";
-  background: linear-gradient(90deg, #000000 0%, rgba(0, 0, 0, 0) 100%);
-  position: absolute;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  top: 0;
-  border-radius: 10px;
-}
+/* Removed ::after pseudo-element to prevent duplication */
 
 .cofrnewf {
   position: relative;
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
-  padding: 5px 10px;
+  width: 100%;
+  height: 100%;
+  padding: 40px 20px;
+  margin: 20px;
+  align-items: center;
 }
 
 .socialsubs {
-  /* width: 50%; */
   width: 50%;
   padding: 0 15px;
+  z-index: 2;
+  position: relative;
 }
 
 .subsform {
   display: flex;
-  padding: 10px 15px;
-  background: rgba(0, 0, 0, 0.61);
-  border: 1px solid rgba(243, 243, 243, 1);
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 10px;
+  align-items: center;
+  gap: 10px;
 }
 
 .coinew {
   color: #fff;
   padding: 0 15px;
   width: 50%;
+  z-index: 2;
+  position: relative;
 }
 
 .subsform .form-control {
   background: transparent;
   border: 0;
-  padding: 0 0;
+  padding: 8px 0;
+  color: white;
+  flex: 1;
+  font-size: 14px;
+}
+
+.subsform .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .btn-submit {
   background: #7930d8;
   font-size: 14px;
   color: #fff;
-  padding: 10px 30px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+  background: #6429b8;
 }
 
 .coinew h3 {
@@ -512,11 +528,32 @@ ul.topmenu {
 .coinew p {
   margin: 0;
 }
+
 .cofrnew {
   background-image: url("../assets/images/img5.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   position: relative;
   padding: 20px 0;
-  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.cofrnew::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0.2) 60%, rgba(0, 0, 0, 0) 100%);
+  z-index: 1;
+  border-radius: 20px;
 }
 .cofr {
   display: flex;
@@ -563,7 +600,7 @@ ul.topmenu {
 }
 
 .Main_serivces {
-  border-right: 1px solid #eaeaea;
+  border-right: 3px solid #eaeaea;
 }
 .location {
   background: #2c2c2cb2;

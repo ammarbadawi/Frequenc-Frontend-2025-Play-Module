@@ -1,5 +1,5 @@
 import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCreditCard } from '@fortawesome/free-regular-svg-icons';
+import { faCreditCard, faBell as faBellRegular, faHeart as faHeartRegular, faUser as faUserRegular } from '@fortawesome/free-regular-svg-icons';
 import { 
   faChevronDown, 
   faArrowLeft, 
@@ -8,7 +8,8 @@ import {
   faHeart, 
   faUser,
   faBars,
-  faTimes
+  faTimes,
+  faSearch
 } from '@fortawesome/free-solid-svg-icons';
 
 // Add icons to the library so they're available in components
@@ -21,5 +22,9 @@ library.add(
   faHeart,
   faUser,
   faBars,
-  faTimes
+  faTimes,
+  faSearch,
+  faBellRegular,
+  faHeartRegular,
+  faUserRegular
 ); 

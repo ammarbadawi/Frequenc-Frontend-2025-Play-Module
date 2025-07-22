@@ -1,30 +1,355 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
-import Gameplacebox from "../components/gameplacebox";
+import "../styles/modify.css";
+
 const Marketplace2 = () => {
-  //calling the Gamebox API
-  const getGamebox = async () => {
-    try {
-      const response = await axios.get(
-        "https:https://playapp.quancomp.net/venue/1"
+  // Mock data for venues with different categories
+  const [allVenues] = useState([
+    {
+      id: 1,
+      name: "Sports Arena Complex",
+      image: "images/img2.png",
+      rating: 4.5,
+      location: "H88W+225, Noida Golf Course, Sector 43, Noida, Uttar Pradesh 201303",
+      categories: ["Football", "Basketball"],
+      price: "$25/hour"
+    },
+    {
+      id: 2,
+      name: "Elite Badminton Club",
+      image: "images/img3.png",
+      rating: 4.8,
+      location: "Sector 18, Gurgaon, Haryana 122015",
+      categories: ["Badminton"],
+      price: "$30/hour"
+    },
+    {
+      id: 3,
+      name: "Rugby Champions Ground",
+      image: "images/img4.png",
+      rating: 4.2,
+      location: "Defence Colony, New Delhi 110024",
+      categories: ["Rugby"],
+      price: "$40/hour"
+    },
+    {
+      id: 4,
+      name: "Premium Golf Course",
+      image: "images/img56.png",
+      rating: 4.9,
+      location: "Golf Course Road, Gurgaon, Haryana 122002",
+      categories: ["Golf"],
+      price: "$60/hour"
+    },
+    {
+      id: 5,
+      name: "Tennis Academy Pro",
+      image: "images/imgd1.png",
+      rating: 4.6,
+      location: "Lajpat Nagar, New Delhi 110024",
+      categories: ["Tennis"],
+      price: "$35/hour"
+    },
+    {
+      id: 6,
+      name: "Multi-Sport Complex",
+      image: "images/img2.png",
+      rating: 4.3,
+      location: "Sector 21, Faridabad, Haryana 121001",
+      categories: ["Football", "Tennis", "Basketball"],
+      price: "$28/hour"
+    },
+    {
+      id: 7,
+      name: "City Football Stadium",
+      image: "images/img3.png",
+      rating: 4.7,
+      location: "Connaught Place, New Delhi 110001",
+      categories: ["Football"],
+      price: "$45/hour"
+    },
+    {
+      id: 8,
+      name: "Professional Badminton Center",
+      image: "images/img4.png",
+      rating: 4.4,
+      location: "Vasant Vihar, New Delhi 110057",
+      categories: ["Badminton"],
+      price: "$32/hour"
+    },
+    {
+      id: 9,
+      name: "International Rugby Field",
+      image: "images/img56.png",
+      rating: 4.1,
+      location: "Sector 29, Gurgaon, Haryana 122022",
+      categories: ["Rugby"],
+      price: "$50/hour"
+    },
+    {
+      id: 10,
+      name: "Elite Golf Resort",
+      image: "images/imgd1.png",
+      rating: 5.0,
+      location: "Golf Course Extension Road, Gurgaon",
+      categories: ["Golf"],
+      price: "$80/hour"
+    },
+    {
+      id: 11,
+      name: "Champions Tennis Club",
+      image: "images/img2.png",
+      rating: 4.5,
+      location: "Greater Kailash, New Delhi 110048",
+      categories: ["Tennis"],
+      price: "$38/hour"
+    },
+    {
+      id: 12,
+      name: "Ultimate Sports Hub",
+      image: "images/img3.png",
+      rating: 4.3,
+      location: "Cyber City, Gurgaon, Haryana 122002",
+      categories: ["Football", "Rugby", "Tennis"],
+      price: "$42/hour"
+    }
+  ]);
+
+  const [filteredVenues, setFilteredVenues] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState(["All"]);
+  const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState("All Locations");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const itemsPerPage = 6;
+
+  // Extract unique locations from venues
+  const locations = ["All Locations", ...new Set(allVenues.map(venue => {
+    // Extract city from location string
+    const parts = venue.location.split(',');
+    return parts[parts.length - 2]?.trim() || parts[0].split(',')[0];
+  }))];
+
+  // Get today's date in YYYY-MM-DD format for min date
+  const today = new Date().toISOString().split('T')[0];
+
+  const categories = [
+    { name: "All", count: allVenues.length },
+    { name: "Football", count: allVenues.filter(v => v.categories.includes("Football")).length },
+    { name: "Badminton", count: allVenues.filter(v => v.categories.includes("Badminton")).length },
+    { name: "Rugby", count: allVenues.filter(v => v.categories.includes("Rugby")).length },
+    { name: "Golf", count: allVenues.filter(v => v.categories.includes("Golf")).length },
+    { name: "Tennis", count: allVenues.filter(v => v.categories.includes("Tennis")).length },
+    { name: "Basketball", count: allVenues.filter(v => v.categories.includes("Basketball")).length }
+  ];
+
+  // Initialize filtered venues
+  useEffect(() => {
+    setFilteredVenues(allVenues);
+  }, [allVenues]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown1s')) {
+        setShowLocationDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Apply initial filters
+  useEffect(() => {
+    applyFilters();
+  }, []);
+
+  // Comprehensive filtering function
+  const applyFilters = async () => {
+    setLoading(true);
+    setCurrentPage(1);
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    let filtered = allVenues;
+
+    // Category filter
+    if (!selectedCategories.includes("All")) {
+      filtered = filtered.filter(venue => 
+        venue.categories.some(cat => selectedCategories.includes(cat))
       );
-      const data = response.json();
-      console.log(data);
-    } catch (error) {
-      console.error("Error fetching gamebox data:", error);
+    }
+
+    // Location filter
+    if (selectedLocation !== "All Locations") {
+      filtered = filtered.filter(venue => 
+        venue.location.toLowerCase().includes(selectedLocation.toLowerCase())
+      );
+    }
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(venue => 
+        venue.name.toLowerCase().includes(query) ||
+        venue.location.toLowerCase().includes(query) ||
+        venue.categories.some(cat => cat.toLowerCase().includes(query))
+      );
+    }
+
+    // Date filter (for now, just validate that a date is selected)
+    // In a real app, you'd filter based on available time slots for that date
+    if (selectedDate) {
+      // This is where you'd implement date-based availability filtering
+      // For now, we'll just keep all venues as available
+    }
+
+    setFilteredVenues(filtered);
+    setLoading(false);
+  };
+
+  // Handle category filtering
+  const handleCategoryChange = async (categoryName) => {
+    let newSelectedCategories;
+    
+    if (categoryName === "All") {
+      newSelectedCategories = ["All"];
+    } else {
+      if (selectedCategories.includes("All")) {
+        newSelectedCategories = [categoryName];
+      } else {
+        if (selectedCategories.includes(categoryName)) {
+          newSelectedCategories = selectedCategories.filter(cat => cat !== categoryName);
+          if (newSelectedCategories.length === 0) {
+            newSelectedCategories = ["All"];
+          }
+        } else {
+          newSelectedCategories = [...selectedCategories, categoryName];
+        }
+      }
+    }
+
+    setSelectedCategories(newSelectedCategories);
+    // Apply filters after category change
+    setTimeout(() => applyFilters(), 100);
+  };
+
+  // Handle location filter
+  const handleLocationChange = (location) => {
+    setSelectedLocation(location);
+    setShowLocationDropdown(false);
+    setTimeout(() => applyFilters(), 100);
+  };
+
+  // Handle date filter
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+    setTimeout(() => applyFilters(), 100);
+  };
+
+  // Handle search
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    setTimeout(() => applyFilters(), 300); // Debounce search
+  };
+
+  // Handle check button click
+  const handleCheckAvailability = () => {
+    applyFilters();
+  };
+
+  // Clear all filters
+  const clearAllFilters = () => {
+    setSelectedCategories(["All"]);
+    setSelectedLocation("All Locations");
+    setSelectedDate("");
+    setSearchQuery("");
+    setTimeout(() => applyFilters(), 100);
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredVenues.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const currentVenues = filteredVenues.slice(startIndex, startIndex + itemsPerPage);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
-  getGamebox();
+  // Gameplacebox component with dynamic data
+  const GameplaceboxDynamic = ({ venue }) => {
+    return (
+      <div className="col-md-6">
+        <Link to={`/details/${venue.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="boxshop" style={{ 
+            cursor: 'pointer', 
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            ':hover': {
+              transform: 'translateY(-5px)',
+              boxShadow: '0 8px 25px rgba(0,0,0,0.1)'
+            }
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateY(-5px)';
+            e.currentTarget.style.boxShadow = '0 8px 25px rgba(0,0,0,0.1)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = 'none';
+          }}>
+            <div className="imagebox">
+              <img src={venue.image} alt={venue.name} />
+              <i className="fa fa-heart-o"></i>
+            </div>
+            <div className="nameshop">
+              <h2 className="modify_title">{venue.name}</h2>
+              <div className="ratings">
+                {venue.rating} <i className="fa fa-star active"></i>
+              </div>
+            </div>
+            <div className="locations">
+              {venue.location}
+            </div>
+            <div className="searchbuttons">
+              {venue.categories.slice(0, 3).map((category, index) => (
+                <span key={index} className="btnicon">{category}</span>
+              ))}
+              {venue.categories.length > 3 && <span>+{venue.categories.length - 3}</span>}
+              <span className="price-tag" style={{
+                backgroundColor: '#7930d8',
+                color: 'white',
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                marginLeft: '8px'
+              }}>
+                {venue.price}
+              </span>
+            </div>
+          </div>
+        </Link>
+      </div>
+    );
+  };
 
   return (
     <div>
-      <section class="midshop">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-3">
-              <div class="sidebarfil">
-                <a href="#" class="creategame btn">
+      <section className="midshop">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-3">
+              <div className="sidebarfil">
+                <a href="#" className="creategame btn">
                   <svg
                     width="14"
                     height="14"
@@ -40,274 +365,160 @@ const Marketplace2 = () => {
                   Create Game
                 </a>
               </div>
-              <div class="filterbox">
-                <div class="filterboxw">
-                  <div class="filtertitle">
-                    <span>Check Avalibility</span>
+              <div className="filterbox">
+                <div className="filterboxw">
+                  <div className="filtertitle">
+                    <span>Check Availability</span>
                   </div>
-                  <div class="dropdownsearch">
-                    <div class="dropdown1s">
-                      Location <i class="fa fa-angle-down"></i>
-                    </div>
-                    <div class="dropdown1s">
-                      Date{" "}
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 14 14"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
+                  <div className="dropdownsearch">
+                    <div className="dropdown1s" style={{ position: 'relative' }}>
+                      <div 
+                        onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                        style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                       >
-                        <path
-                          d="M0.999512 6.49332C0.999512 6.07525 1.33843 5.73633 1.7565 5.73633H12.2425C12.6606 5.73633 12.9995 6.07524 12.9995 6.49332V12.3679C12.9995 12.7167 12.7168 12.9995 12.3679 12.9995H1.63109C1.28228 12.9995 0.999512 12.7167 0.999512 12.3679V6.49332Z"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M0.999512 2.57884C0.999512 2.23003 1.28228 1.94727 1.63109 1.94727H12.3679C12.7168 1.94727 12.9995 2.23003 12.9995 2.57884V4.97975C12.9995 5.39782 12.6606 5.73674 12.2425 5.73674H1.7565C1.33843 5.73674 0.999512 5.39782 0.999512 4.97975V2.57884Z"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M4.47607 1V3.52632"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M9.52295 1V3.52632"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M8.26514 10.4736H10.1599"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M3.84326 10.4736H5.738"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M8.26514 7.94727H10.1599"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                        <path
-                          d="M3.84326 7.94727H5.738"
-                          stroke="#47464A"
-                          stroke-width="0.756992"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                        {selectedLocation} <i className="fa fa-angle-down"></i>
+                      </div>
+                      {showLocationDropdown && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          right: 0,
+                          backgroundColor: 'white',
+                          border: '1px solid #ddd',
+                          borderRadius: '4px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          zIndex: 1000,
+                          maxHeight: '200px',
+                          overflowY: 'auto'
+                        }}>
+                          {locations.map((location) => (
+                            <div
+                              key={location}
+                              onClick={() => handleLocationChange(location)}
+                              style={{
+                                padding: '8px 12px',
+                                cursor: 'pointer',
+                                backgroundColor: selectedLocation === location ? '#f0f0f0' : 'white',
+                                borderBottom: '1px solid #eee'
+                              }}
+                              onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
+                              onMouseLeave={(e) => e.target.style.backgroundColor = selectedLocation === location ? '#f0f0f0' : 'white'}
+                            >
+                              {location}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <div className="dropdown1s">
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => handleDateChange(e.target.value)}
+                        min={today}
+                        style={{
+                          border: 'none',
+                          background: 'transparent',
+                          width: '100%',
+                          cursor: 'pointer',
+                          fontSize: 'inherit',
+                          color: 'inherit'
+                        }}
+                      />
                     </div>
                   </div>
-                  <div class="btny text-center">
-                    <a href="#" class="creatCheck btn">
-                      Check
-                    </a>
+                  <div className="btny text-center">
+                    <button 
+                      onClick={handleCheckAvailability}
+                      className="creatCheck btn"
+                      disabled={loading}
+                      style={{ 
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        opacity: loading ? 0.7 : 1 
+                      }}
+                    >
+                      {loading ? 'Checking...' : 'Check'}
+                    </button>
                   </div>
                 </div>
               </div>
-              <div class="filterbox">
-                <div class="filtertitle">
+              <div className="filterbox">
+                <div className="filtertitle">
                   <span>Categories</span>
+                  {loading && (
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: '#7930d8',
+                      marginLeft: '10px'
+                    }}>
+                      Loading...
+                    </div>
+                  )}
                 </div>
 
                 <ul>
-                  <li>
-                    <label class="containerchj">
-                      All
-                      <input type="checkbox" checked="checked" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="numberc">(23)</span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      Football
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="numberc">(12)</span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      Badminton
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="numberc">(12)</span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      Rugby
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="numberc">(45)</span>{" "}
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      Golf
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>{" "}
-                    <span class="numberc">(43)</span>
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      Tennis
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>{" "}
-                    <span class="numberc">(23)</span>
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      Golf
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="numberc">(23)</span>{" "}
-                  </li>
-                  <li class="viewmore">Show 22 more</li>
-                </ul>
-              </div>
-              <div class="filterbox">
-                <div class="filtertitle">
-                  <span>Rating</span>
-                </div>
-
-                <ul>
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>{" "}
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </span>{" "}
-                  </li>
-
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </span>{" "}
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>{" "}
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                      <i class="fa fa-star"></i>
-                    </span>
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>{" "}
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star"></i>
-                    </span>
-                  </li>
-                  <li>
-                    <label class="containerchj">
-                      <input type="checkbox" />
-                      <span class="checkmark"></span>
-                    </label>
-                    <span class="ratingcheck">
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                      <i class="fa fa-star active"></i>
-                    </span>{" "}
-                  </li>
+                  {categories.map((category) => (
+                    <li key={category.name}>
+                      <label className="containerchj">
+                        {category.name}
+                        <input 
+                          type="checkbox" 
+                          checked={selectedCategories.includes(category.name)}
+                          onChange={() => handleCategoryChange(category.name)}
+                          disabled={loading}
+                        />
+                        <span className="checkmark"></span>
+                      </label>
+                      <span className="numberc">({category.count})</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
 
-            <div class="col-md-9">
-              <div class="elementlist">
-                <div class="resutcount">
-                  <div class="ressult">
-                    Showing 1-12 of 90 result | <a href="#">Near Me</a>
+            <div className="col-md-9">
+              <div className="elementlist">
+                <div className="resutcount">
+                  <div className="ressult">
+                    Showing {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredVenues.length)} of {filteredVenues.length} results
+                    {(selectedLocation !== "All Locations" || selectedDate || searchQuery || !selectedCategories.includes("All")) && (
+                      <>
+                        <span style={{ color: '#7930d8', marginLeft: '10px', fontSize: '12px' }}>
+                          (Filtered)
+                        </span>
+                        <button 
+                          onClick={clearAllFilters}
+                          style={{ 
+                            marginLeft: '8px', 
+                            fontSize: '12px', 
+                            color: '#7930d8',
+                            background: 'none',
+                            border: 'none',
+                            textDecoration: 'underline',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Clear All
+                        </button>
+                      </>
+                    )}
+                    | <a href="#" onClick={(e) => {
+                      e.preventDefault();
+                      // You can implement "Near Me" functionality here
+                      alert('Near Me functionality would use user\'s location');
+                    }}>Near Me</a>
                   </div>
-                  <div class="sercressult">
-                    <div class="subsforms">
+                  <div className="sercressult">
+                    <div className="subsforms">
                       <input
                         type="text"
-                        placeholder="Search..."
-                        class="form-control"
+                        placeholder="Search venues, locations, sports..."
+                        className="form-control"
+                        value={searchQuery}
+                        onChange={(e) => handleSearch(e.target.value)}
                       />
-                      <span class="submitnew">
+                      <span className="submitnew">
                         <svg
                           width="16"
                           height="16"
@@ -318,32 +529,143 @@ const Marketplace2 = () => {
                           <path
                             d="M13.9996 14L11.5996 11.6"
                             stroke="#171A1F"
-                            stroke-width="0.8"
-                            stroke-miterlimit="10"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeWidth="0.8"
+                            strokeMiterlimit="10"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           />
                           <path
                             d="M6.8 11.6C9.45097 11.6 11.6 9.45097 11.6 6.8C11.6 4.14903 9.45097 2 6.8 2C4.14903 2 2 4.14903 2 6.8C2 9.45097 4.14903 11.6 6.8 11.6Z"
                             stroke="#171A1F"
-                            stroke-width="0.8"
-                            stroke-miterlimit="10"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
+                            strokeWidth="0.8"
+                            strokeMiterlimit="10"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                           />
                         </svg>
                       </span>
                     </div>
                   </div>
                 </div>
-                <div class="row">
-                  <Gameplacebox />
-                  <Gameplacebox />
-                  <Gameplacebox />
-                  <Gameplacebox />
-                  <Gameplacebox />
-                  <Gameplacebox />
-                </div>
+                
+                {loading ? (
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '200px',
+                    fontSize: '18px',
+                    color: '#7930d8'
+                  }}>
+                    <div>
+                      <i className="fa fa-spinner fa-spin" style={{ marginRight: '10px' }}></i>
+                      Loading venues...
+                    </div>
+                  </div>
+                ) : (
+                  <div className="row">
+                    {currentVenues.map((venue) => (
+                      <GameplaceboxDynamic key={venue.id} venue={venue} />
+                    ))}
+                  </div>
+                )}
+                
+                {/* Pagination Component */}
+                {!loading && filteredVenues.length > 0 && (
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'flex-start',
+                    gap: '12.667px',
+                    marginTop: '40px',
+                    justifyContent: 'center',
+                    width: '100%'
+                  }}>
+                    {/* Previous Arrow */}
+                    <div 
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      style={{
+                        borderRadius: '5.278px',
+                        border: '1.056px solid #D6D6D6',
+                        background: '#FFF',
+                        display: 'flex',
+                        width: '48.556px',
+                        height: '48.556px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: currentPage > 1 ? 'pointer' : 'not-allowed',
+                        opacity: currentPage > 1 ? 1 : 0.5
+                      }}
+                    >
+                      <span style={{ fontSize: '20px', color: '#000' }}>&#8249;</span>
+                    </div>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      const isActive = pageNum === currentPage;
+                      
+                      return (
+                        <div
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          style={{
+                            borderRadius: '5.278px',
+                            background: isActive ? '#03103B' : '#FFF',
+                            border: isActive ? 'none' : '1.056px solid #D6D6D6',
+                            display: 'flex',
+                            width: '48.556px',
+                            height: '48.556px',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <span style={{
+                            color: isActive ? '#FFF' : '#000',
+                            textAlign: 'center',
+                            fontFamily: 'Poppins',
+                            fontSize: '16.889px',
+                            fontStyle: 'normal',
+                            fontWeight: '500',
+                            lineHeight: '25.333px',
+                            letterSpacing: '0.084px'
+                          }}>
+                            {pageNum}
+                          </span>
+                        </div>
+                      );
+                    })}
+
+                    {/* Next Arrow */}
+                    <div 
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      style={{
+                        borderRadius: '5.278px',
+                        border: '1.056px solid #D6D6D6',
+                        background: '#FFF',
+                        display: 'flex',
+                        width: '48.556px',
+                        height: '48.556px',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        cursor: currentPage < totalPages ? 'pointer' : 'not-allowed',
+                        opacity: currentPage < totalPages ? 1 : 0.5
+                      }}
+                    >
+                      <span style={{ fontSize: '20px', color: '#000' }}>&#8250;</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

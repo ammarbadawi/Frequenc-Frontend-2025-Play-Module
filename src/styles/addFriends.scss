@@ -1,13 +1,20 @@
 .add-friends {
   width: 100%;
-  padding: 4rem 8rem;
+  height: 100vh;
+  padding: 2rem 8rem;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  .player-container {
-    background-color: #fff;
-    border-radius: 20px;
-    padding: 2rem;
-    width: 100%;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      .player-container {
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 2rem;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-height: 90vh;
+      overflow-y: auto;
 
     .break {
       width: 100%;
@@ -109,6 +116,39 @@
 
         &:hover {
           opacity: 0.9;
+        }
+      }
+    }
+
+    .add-player-bottom {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+      padding-top: 15px;
+
+      .add-player-btn-bottom {
+        background: rgba(121, 48, 216, 0.07);
+        color: #7930d8;
+        border: 1px solid rgba(121, 48, 216, 0.3);
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        font-family: 'Mulish', sans-serif;
+
+        &:hover:not(:disabled) {
+          background: rgba(121, 48, 216, 0.15);
+          border-color: rgba(121, 48, 216, 0.5);
+        }
+
+        &:disabled {
+          cursor: not-allowed;
+          opacity: 0.5;
         }
       }
     }

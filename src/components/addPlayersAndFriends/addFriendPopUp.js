@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faTrash } from "@fortawesome/free-solid-svg-icons";
 import "../../styles/addFriendPopUp.scss";
 
 const AddFriendPopUp = ({
@@ -6,6 +8,9 @@ const AddFriendPopUp = ({
   setShowAddFriendPopUp,
   friendsList,
   setFriendsList,
+  maxCanAdd,
+  gameType,
+  isPlaying,
 }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -46,7 +51,7 @@ const AddFriendPopUp = ({
   };
 
   const handleAddPlayer = () => {
-    if (name && email && phone) {
+    if (name && email && phone && friendsList.length < maxCanAdd) {
       const newPlayer = { name, email, phone };
       setFriendsList([...friendsList, newPlayer]);
       setName("");
@@ -55,18 +60,21 @@ const AddFriendPopUp = ({
     }
   };
 
+  const handleCopyLink = () => {
+    const inviteLink = `${window.location.origin}/invite?game=${gameType}&host=${encodeURIComponent(name || 'Host')}`;
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      alert('Invitation link copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy link');
+    });
+  };
+
   return (
     <div className="add-friend-popup">
       <div className="close-btn global-h1" onClick={handleClick}>
-        ✖
+        ×
       </div>
       <h2>Add Friend</h2>
-
-      {/* add either as frnd or as guest */}
-      <div className="friend-type" style={hide ? { display: "none" } : {}}>
-        <button>Add a Player</button>
-        <button className="guest">Add a Guest</button>
-      </div>
 
       <div className="input-row">
         <div className="input-group">
@@ -99,8 +107,16 @@ const AddFriendPopUp = ({
           />
         </div>
 
-        <button className="add-player-btn" onClick={handleAddPlayer}>
-          Add Player
+        <button 
+          className="add-player-btn" 
+          onClick={handleAddPlayer}
+          disabled={friendsList.length >= maxCanAdd}
+          style={{
+            opacity: friendsList.length >= maxCanAdd ? 0.5 : 1,
+            cursor: friendsList.length >= maxCanAdd ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {friendsList.length >= maxCanAdd ? 'Maximum Players Reached' : 'Add Player'}
         </button>
       </div>
 
@@ -110,11 +126,9 @@ const AddFriendPopUp = ({
         {friendsList.map((friend, index) => (
           <li key={index} className="friend-item">
             <div className="friend-info">
-              <img
-                src={`https://ui-avatars.com/api/?name=${friend.name}`}
-                alt={friend.name}
-                className="friend-avatar"
-              />
+              <div className="friend-avatar">
+                <FontAwesomeIcon icon={faUser} />
+              </div>
               <span>{friend.name}</span>
             </div>
 
@@ -126,15 +140,19 @@ const AddFriendPopUp = ({
                   setFriendsList(friendsList.filter((_, i) => i !== index))
                 }
               >
-                🗑
+                <FontAwesomeIcon icon={faTrash} />
               </button>
             </div>
           </li>
         ))}
       </ul>
 
-      <div className="save-next-btn">
+      <div className="popup-footer">
+        <button className="copy-link-btn" onClick={handleCopyLink}>
+          Copy Link
+        </button>
         <button
+          className="save-next-btn"
           style={
             hide
               ? {
