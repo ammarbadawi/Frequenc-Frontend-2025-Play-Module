@@ -63,6 +63,7 @@ const BookingPolicy = () => {
   const handleAddPlayers = () => {
     setShowAddFriendsPopup(true);
   };
+  
 
   const handleCloseAddFriendsPopup = () => {
     setShowAddFriendsPopup(false);
