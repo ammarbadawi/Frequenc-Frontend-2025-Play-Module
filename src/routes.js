@@ -9,6 +9,9 @@ import PaymentSuccess from "./pages/paymentSuccess";
 import AddFriends from "./pages/addFriends";
 import BookingInfo from "./pages/bookingInfo";
 import BookingPolicy from "./pages/bookingPolicy";
+import Profile from "./pages/profile";
+import Cart from "./pages/cart";
+import Favorites from "./pages/favorites";
 const RouteConfig = () => {
   return (
     <Routes>
@@ -28,6 +31,9 @@ const RouteConfig = () => {
       <Route path="/paymentSuccess" element={<PaymentSuccess />} />
       <Route path="/addFriends" element={<AddFriends />} />
       <Route path="/booking-policy" element={<BookingPolicy />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/cart" element={<Cart />} />
+      <Route path="/favorites" element={<Favorites />} />
     </Routes>
   );
 };

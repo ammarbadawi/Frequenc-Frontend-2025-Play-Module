@@ -12,7 +12,6 @@ import {
   faSearch
 } from '@fortawesome/free-solid-svg-icons';
 
-// Add icons to the library so they're available in components
 library.add(
   faCreditCard,
   faChevronDown,

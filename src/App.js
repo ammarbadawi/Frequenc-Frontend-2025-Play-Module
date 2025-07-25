@@ -1,38 +1,34 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, useLocation } from "react-router-dom"; // Import the necessary hooks
+import { BrowserRouter, useLocation } from "react-router-dom"; 
 import "./App.css";
 import Header from "./components/Header";
 import { Footer } from "./components/footer/Footer";
 
-// Import Swiper styles
 import "swiper/css";
 
 import RouteConfig from "./routes";
 import "./styles/bootstrap.min.css";
 import "./styles/global.css";
 import "./styles/responsive.css";
-// Custom hook to handle adding/removing class to body
 
-// const { pathname } = useLocation();
 
 function useBodyClass() {
-  const location = useLocation(); // Get current route
+  const location = useLocation();
 
   useEffect(() => {
-    window.scrollTo(0, 0); // Scroll to the top when route changes
+    window.scrollTo(0, 0);
   }, [location]);
 
   useEffect(() => {
-    // Remove the non-home-page class completely to prevent header style overrides
+
     document.body.classList.remove("non-home-page");
     
-    // We'll use a different class that doesn't affect the header
     if (location.pathname !== "/") {
       document.body.classList.add("interior-page");
     } else {
       document.body.classList.remove("interior-page");
     }
-  }, [location]); // Runs when location changes
+  }, [location]); 
 }
 
 const App = () => {
@@ -45,11 +41,9 @@ const App = () => {
   );
 };
 
-// Wrapper component to use the custom hook
 const BodyClassWrapper = () => {
-  useBodyClass(); // Custom hook to manage body class
+  useBodyClass();
 
-  // Add a style to ensure proper layout with footer visible
   const mainStyle = {
     display: 'flex',
     flexDirection: 'column',
