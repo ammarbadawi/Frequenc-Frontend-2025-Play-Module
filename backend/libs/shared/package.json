@@ -1,0 +1,22 @@
+{
+  "name": "@frequenc/shared",
+  "version": "1.0.0",
+  "description": "Shared library for Frequenc microservices",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@nestjs/common": "^10.2.10",
+    "@prisma/client": "^5.0.0",
+    "class-validator": "^0.14.0",
+    "class-transformer": "^0.5.1",
+    "@nestjs/swagger": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+} 

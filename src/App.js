@@ -3,6 +3,8 @@ import { BrowserRouter, useLocation } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 import { Footer } from "./components/footer/Footer";
+import { AuthProvider } from "./contexts/AuthContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 
 import "swiper/css";
 
@@ -10,7 +12,6 @@ import RouteConfig from "./routes";
 import "./styles/bootstrap.min.css";
 import "./styles/global.css";
 import "./styles/responsive.css";
-
 
 function useBodyClass() {
   const location = useLocation();
@@ -20,7 +21,6 @@ function useBodyClass() {
   }, [location]);
 
   useEffect(() => {
-
     document.body.classList.remove("non-home-page");
     
     if (location.pathname !== "/") {
@@ -33,11 +33,13 @@ function useBodyClass() {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      {" "}
-      {/* Ensure the entire app is wrapped with BrowserRouter */}
-      <BodyClassWrapper /> {/* Move the hook usage to a wrapper */}
-    </BrowserRouter>
+    <ErrorBoundary>
+      <AuthProvider>
+        <BrowserRouter>
+          <BodyClassWrapper />
+        </BrowserRouter>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

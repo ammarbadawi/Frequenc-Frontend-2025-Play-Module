@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Footer } from "../components/footer/Footer";
 import "../styles/booking.css";
+import venuesService from "../services/venuesService";
+import bookingsService from "../services/bookingsService";
 
 const DetailPage = () => {
   const { id } = useParams();
@@ -17,75 +19,32 @@ const DetailPage = () => {
   const [showOpenMatchesPopup, setShowOpenMatchesPopup] = useState(false);
   const [selectedGameType, setSelectedGameType] = useState(null);
 
-  // Mock venue data - replace with real API call later
-  const venue = {
-    id: id,
-    name: "Venue Name",
-    rating: 4.2,
-    reviewCount: 199,
-    images: [
-      "/images/img2.png",
-      "/images/img3.png", 
-      "/images/img4.png",
-      "/images/img56.png",
-      "/images/imgd1.png"
-    ],
-    sportsOffered: ["Golf", "Tennis"],
-    timeSlots: [
-      { time: "09:00 AM", available: true, price: 14.29 },
-      { time: "10:00 AM", available: true, price: 14.29 },
-      { time: "01:00 PM", available: true, price: 14.29 },
-      { time: "02:00 PM", available: true, price: 12.00 },
-      { time: "03:00 PM", available: true, price: 14.29 },
-      { time: "04:00 PM", available: true, price: 13.50 },
-      { time: "05:00 PM", available: true, price: 15.00 },
-      { time: "06:00 PM", available: true, price: 16.50 }
-    ],
-    description: `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem lorem elegesem sed lectinie quis. Nibh elementum vulputate odio pellentesque sit quis ac, sit ipsum. Sit rhoncus velit in sed rutrum etiam ac peristenti quam consequatur.
+  const [venue, setVenue] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [availability, setAvailability] = useState([]);
 
-Convallis ut tempor laoreet nibh leo. Vivamus malesuado pulvinar non rutrum risus dis nia. Risus. Porta massa velit iocuis tincidunt tortor, risus, scelerisque risus. In ut lorem pellentesque nisl lorem dictum dignissim in. Aeneam pulvinar tellus interdum ullamcorper. Vel urna, lorem, massa metius purus metus. Maecenas mollis in velit auctor cursus scelerisque eget.`,
-    location: {
-      address: "Abc street, Noida, Uttar Pradesh",
-      lat: 28.5355,
-      lng: 77.3910
-    },
-    amenities: [
-      { icon: "/images/Award 1.svg", title: "Free delivery" },
-      { icon: "/images/Check double 2.svg", title: "7 days return" },
-      { icon: "/images/Check double 2.svg", title: "7 days return" },
-      { icon: "/images/Check double 2.svg", title: "7 days return" },
-      { icon: "/images/Globe 1.svg", title: "Made in USA" },
-      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
-      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
-      { icon: "/images/Award 1.svg", title: "2 years guarantee" },
-      { icon: "/images/Check double 2.svg", title: "100% authentic" },
-      { icon: "/images/Check double 2.svg", title: "24/7 customer support" },
-      { icon: "/images/Check double 2.svg", title: "24/7 customer support" },
-      { icon: "/images/Check double 2.svg", title: "24/7 customer support" }
-    ],
-    reviews: [
-      {
-        name: "Joy Rutherford",
-        rating: 4,
-        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
-      },
-      {
-        name: "Nicole Chung",
-        rating: 4,
-        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
-      },
-      {
-        name: "Wei Arnold",
-        rating: 3,
-        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
-      },
-      {
-        name: "Judith Mejia",
-        rating: 4,
-        comment: "Nulla laboris fugiat fugiat minim minim excepteur eiusmod quis. Laborum est minim id cullum nostrud ullam consectetur."
+  // Fetch venue data
+  useEffect(() => {
+    const fetchVenue = async () => {
+      try {
+        setLoading(true);
+        const venueData = await venuesService.getVenue(id);
+        setVenue(venueData);
+        
+        // Fetch availability for today
+        const today = new Date().toISOString().split('T')[0];
+        const availabilityData = await venuesService.getAvailability(id, today);
+        setAvailability(availabilityData.timeSlots || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
-    ]
-  };
+    };
+
+    fetchVenue();
+  }, [id]);
 
   // Generate calendar for current month
   const generateCalendar = () => {

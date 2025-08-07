@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import "../styles/cart.css";
+import paymentsService from "../services/paymentsService";
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -20,43 +21,22 @@ const Cart = () => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
 
-  // Mock cart data - in a real app, this would come from context or API
+  // Fetch cart data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setCartItems([
-        {
-          id: 1,
-          name: "Tennis Court Booking - Central Park",
-          venue: "Central Park Tennis Center",
-          date: "2024-02-15",
-          time: "14:00 - 16:00",
-          price: 45.00,
-          quantity: 1,
-          image: "/images/select-sport-img-1.png.png",
-          type: "court_booking"
-        },
-        {
-          id: 2,
-          name: "Tennis Racket - Professional Series",
-          brand: "Wilson",
-          price: 89.99,
-          quantity: 1,
-          image: "/images/select-sport-img-2.png.png",
-          type: "equipment"
-        },
-        {
-          id: 3,
-          name: "Tennis Balls Pack (3 cans)",
-          brand: "Penn",
-          price: 12.50,
-          quantity: 2,
-          image: "/images/select-sport-img-3.png.png",
-          type: "equipment"
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    const fetchCart = async () => {
+      try {
+        setLoading(true);
+        const cartData = await paymentsService.getCart();
+        setCartItems(cartData.items || []);
+      } catch (error) {
+        console.error('Failed to fetch cart:', error);
+        setCartItems([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCart();
   }, []);
 
   const updateQuantity = (itemId, newQuantity) => {
