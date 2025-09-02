@@ -5,7 +5,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/Frequenc-Frontend-2025-Play-Module.git"
+    "url": "https://github.com/FDevz23/Frequenc-Frontend-2025-Play-Module.git"
   },
   "keywords": [
     "react",
@@ -18,7 +18,7 @@
   ],
   "author": "Your Name",
   "license": "MIT",
-  "homepage": "https://yourusername.github.io/Frequenc-Frontend-2025-Play-Module",
+  "homepage": "https://fdevz23.github.io/Frequenc-Frontend-2025-Play-Module",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
