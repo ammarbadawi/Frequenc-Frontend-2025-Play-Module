@@ -9,7 +9,8 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' } as any);
+
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,6 +22,20 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setFieldErrors({ email: '', password: '' });
+
+    const errs: any = { email: '', password: '' };
+    if (!credentials.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(credentials.email)) {
+      errs.email = 'Enter a valid email';
+    }
+    if (!credentials.password) {
+      errs.password = 'Password is required';
+    }
+    if (errs.email || errs.password) {
+      setFieldErrors(errs);
+      setLoading(false);
+      return;
+    }
 
     try {
       await login(credentials);
@@ -57,7 +72,7 @@ const Login = () => {
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
       }}>
         <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>Login</h2>
-        
+
         {error && (
           <div style={{
             padding: '0.75rem',
@@ -91,6 +106,9 @@ const Login = () => {
                 fontSize: '1rem'
               }}
             />
+            {fieldErrors.email && (
+              <div style={{ color: '#c33', fontSize: 12, marginTop: 6 }}>{fieldErrors.email}</div>
+            )}
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
@@ -112,6 +130,9 @@ const Login = () => {
                 fontSize: '1rem'
               }}
             />
+            {fieldErrors.password && (
+              <div style={{ color: '#c33', fontSize: 12, marginTop: 6 }}>{fieldErrors.password}</div>
+            )}
           </div>
 
           <button
@@ -135,7 +156,7 @@ const Login = () => {
 
         <div style={{ textAlign: 'center', marginTop: '1rem' }}>
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/forgot-password')}
             style={{
               background: 'none',
               border: 'none',
@@ -144,7 +165,22 @@ const Login = () => {
               textDecoration: 'underline'
             }}
           >
-            Back to Home
+            Forgot your password?
+          </button>
+        </div>
+
+        <div style={{ textAlign: 'center', marginTop: '0.5rem' }}>
+          <button
+            onClick={() => navigate('/register')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#007bff',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
+          >
+            Create an account
           </button>
         </div>
       </div>

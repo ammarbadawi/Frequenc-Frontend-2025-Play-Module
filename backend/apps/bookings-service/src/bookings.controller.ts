@@ -7,8 +7,14 @@ export class BookingsController {
   constructor(private readonly bookingsService: BookingsService) {}
 
   @MessagePattern('bookings.get-user-bookings')
-  async getUserBookings(@Payload() data: { userId: string; page?: number; limit?: number }) {
-    return this.bookingsService.getUserBookings(data.userId, data.page, data.limit);
+  async getUserBookings(
+    @Payload() data: { userId: string; page?: number; limit?: number },
+  ) {
+    return this.bookingsService.getUserBookings(
+      data.userId,
+      data.page,
+      data.limit,
+    );
   }
 
   @MessagePattern('bookings.create')
@@ -32,12 +38,32 @@ export class BookingsController {
   }
 
   @MessagePattern('bookings.check-availability')
-  async checkAvailability(@Payload() data: { courtId: string; date: string; startTime: string; endTime: string }) {
-    return this.bookingsService.checkAvailability(data.courtId, data.date, data.startTime, data.endTime);
+  async checkAvailability(
+    @Payload()
+    data: {
+      courtId: string;
+      date: string;
+      startTime: string;
+      endTime: string;
+    },
+  ) {
+    return this.bookingsService.checkAvailability(
+      data.courtId,
+      data.date,
+      data.startTime,
+      data.endTime,
+    );
   }
 
   @MessagePattern('bookings.confirm')
   async confirmBooking(@Payload() data: { bookingId: string }) {
     return this.bookingsService.confirmBooking(data.bookingId);
   }
-} 
+
+  @MessagePattern('bookings.add-invites')
+  async addInvites(
+    @Payload() data: { bookingId: string; playerIds: string[] },
+  ) {
+    return this.bookingsService.addInvites(data.bookingId, data.playerIds);
+  }
+}

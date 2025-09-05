@@ -35,4 +35,37 @@ export class GamesController {
   async updateGameStatus(@Payload() data: { gameId: string; status: string }) {
     return this.gamesService.updateGameStatus(data.gameId, data.status);
   }
-} 
+
+  @MessagePattern('games.get-details')
+  async getGameDetails(@Payload() data: { gameId: string }) {
+    return this.gamesService.getGameDetails(data.gameId);
+  }
+
+  @MessagePattern('games.create-from-booking')
+  async createFromBooking(
+    @Payload()
+    data: {
+      userId: string;
+      bookingId: string;
+      isPublic?: boolean;
+      maxPlayers?: number;
+    },
+  ) {
+    return this.gamesService.createGameFromBooking(
+      data.userId,
+      data.bookingId,
+      data.isPublic,
+      data.maxPlayers,
+    );
+  }
+
+  @MessagePattern('games.sync-from-booking-invites')
+  async syncFromBookingInvites(
+    @Payload() data: { userId: string; bookingId: string },
+  ) {
+    return this.gamesService.syncInvitesFromBooking(
+      data.userId,
+      data.bookingId,
+    );
+  }
+}

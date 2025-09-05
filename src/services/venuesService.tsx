@@ -6,8 +6,8 @@ class VenuesService {
   async getVenues(filters = {}) {
     try {
       const params = new URLSearchParams();
-      
-      if (filters.sport) params.append('sport', filters.sport);
+
+      if (filters.sportType) params.append('sportType', filters.sportType);
       if (filters.location) params.append('location', filters.location);
       if (filters.rating) params.append('rating', filters.rating);
       if (filters.page) params.append('page', filters.page);
@@ -33,12 +33,12 @@ class VenuesService {
   // Search venues
   async searchVenues(query, filters = {}) {
     try {
-      const params = new URLSearchParams({ q: query });
-      
+      const params = new URLSearchParams({ query });
+
       if (filters.lat) params.append('lat', filters.lat);
       if (filters.lng) params.append('lng', filters.lng);
       if (filters.radius) params.append('radius', filters.radius);
-      if (filters.sport) params.append('sport', filters.sport);
+      if (filters.sportType) params.append('sportType', filters.sportType);
 
       const response = await api.get(`/venues/search?${params.toString()}`);
       return response.data;
@@ -98,15 +98,7 @@ class VenuesService {
   // Upload venue image
   async uploadVenueImage(venueId, imageFile) {
     try {
-      const formData = new FormData();
-      formData.append('image', imageFile);
-
-      const response = await api.post(`/venues/${venueId}/upload-image`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      return response.data;
+      throw new Error('Uploading venue images is not supported via API Gateway.');
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to upload image');
     }

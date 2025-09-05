@@ -22,6 +22,16 @@ class GamesService {
     }
   }
 
+  // Create game from an existing booking
+  async createGameFromBooking(bookingId, payload = {}) {
+    try {
+      const response = await api.post(`/games/from-booking/${bookingId}`, payload);
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to create game from booking');
+    }
+  }
+
   // Join a game
   async joinGame(gameId) {
     try {

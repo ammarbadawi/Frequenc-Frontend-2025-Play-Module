@@ -25,7 +25,7 @@ class NotificationsService {
   // Mark all notifications as read
   async markAllAsRead() {
     try {
-      const response = await api.put('/notifications/mark-all-read');
+      const response = await api.put('/notifications/read-all');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to mark all notifications as read');
@@ -60,6 +60,18 @@ class NotificationsService {
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to send email');
     }
+  }
+
+  // Subscribe to SSE stream for realtime notifications
+  subscribeStream(onMessage: (data: any) => void) {
+    const token = localStorage.getItem('accessToken');
+    const base = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+    const url = `${base}/notifications/stream`;
+    const es = new EventSource(url, { withCredentials: true } as any);
+    es.onmessage = (event) => {
+      try { const data = JSON.parse(event.data); onMessage(data); } catch { onMessage(event.data); }
+    };
+    return () => es.close();
   }
 }
 

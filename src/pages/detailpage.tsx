@@ -20,10 +20,14 @@ const DetailPage = () => {
   const [showOpenMatchesPopup, setShowOpenMatchesPopup] = useState(false);
   const [selectedGameType, setSelectedGameType] = useState(null);
 
-  const [venue, setVenue] = useState(null);
+  const [venue, setVenue] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [availability, setAvailability] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [availability, setAvailability] = useState<any[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: "" });
+  const [favBusy, setFavBusy] = useState(false);
+  const [courts, setCourts] = useState<any[]>([]);
 
   // Fetch venue data
   useEffect(() => {
@@ -32,13 +36,32 @@ const DetailPage = () => {
         setLoading(true);
         const venueData = await venuesService.getVenue(id);
         setVenue(venueData);
-        
+
         // Fetch availability for today
         const today = new Date().toISOString().split('T')[0];
         const availabilityData = await venuesService.getAvailability(id, today);
-        setAvailability(availabilityData.timeSlots || []);
+        setAvailability(availabilityData?.timeSlots || []);
+
+        // Fetch venue courts
+        try {
+          const courtsData = await venuesService.getVenueCourts(id);
+          const list = Array.isArray(courtsData?.courts) ? courtsData.courts : (Array.isArray(courtsData) ? courtsData : []);
+          setCourts(list);
+        } catch (e) {
+          setCourts([]);
+        }
+
+        // Fetch venue reviews
+        try {
+          const reviewsData = await venuesService.getVenueReviews(id, 1, 10);
+          const listR = Array.isArray(reviewsData?.reviews) ? reviewsData.reviews : (Array.isArray(reviewsData) ? reviewsData : []);
+          setReviews(listR);
+        } catch (e) {
+          setReviews(venueData?.reviews || []);
+        }
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to load venue');
+        setVenue(null);
       } finally {
         setLoading(false);
       }
@@ -46,6 +69,24 @@ const DetailPage = () => {
 
     fetchVenue();
   }, [id]);
+
+  // Re-fetch availability when date or court changes
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        if (!id) return;
+        const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+        const selectedCourt = courts[selectedCourtIndex];
+        const courtId = selectedCourt?.id || selectedCourt?._id || null;
+        const availabilityData = await venuesService.getAvailability(id, dateStr, courtId);
+        setAvailability(availabilityData?.timeSlots || availabilityData || []);
+      } catch (e) {
+        // keep previous availability or clear
+      }
+    };
+
+    fetchAvailability();
+  }, [id, selectedDate, selectedCourtIndex, courts]);
 
   // Generate calendar for current month
   const generateCalendar = () => {
@@ -57,17 +98,17 @@ const DetailPage = () => {
     const startingDayOfWeek = firstDay.getDay();
 
     const calendar = [];
-    
+
     // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       calendar.push(null);
     }
-    
+
     // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       calendar.push(day);
     }
-    
+
     return calendar;
   };
 
@@ -109,7 +150,7 @@ const DetailPage = () => {
 
   const handleGameTypeSelect = (type) => {
     setSelectedGameType(type);
-    
+
     // Navigate to booking policy page with game data for both singles and doubles
     const gameData = {
       gameType: type === 'singles' ? 'Singles' : 'Doubles',
@@ -123,7 +164,7 @@ const DetailPage = () => {
       fullPrice: 14,
       subtotal: 7.29 // This will be recalculated in booking policy based on game type
     };
-    
+
     navigate('/booking-policy', { state: gameData });
   };
 
@@ -134,10 +175,10 @@ const DetailPage = () => {
   const handleCalendarDateClick = (date) => {
     setSelectedDate(date);
     setShowCalendar(false);
-    
+
     // Update the selectedDateIndex to maintain consistency
     const dateButtons = generateDateButtons();
-    const newIndex = dateButtons.findIndex(btn => 
+    const newIndex = dateButtons.findIndex(btn =>
       btn.fullDate.toDateString() === date.toDateString()
     );
     if (newIndex !== -1) {
@@ -152,7 +193,7 @@ const DetailPage = () => {
     const dates = [];
     const startDate = new Date(selectedDate);
     startDate.setDate(startDate.getDate() - 2); // Start 2 days before selected date
-    
+
     for (let i = 0; i < 5; i++) {
       const date = new Date(startDate);
       date.setDate(startDate.getDate() + i);
@@ -169,7 +210,7 @@ const DetailPage = () => {
     // Load Google Maps script
     // Replace YOUR_GOOGLE_MAPS_API_KEY with your actual Google Maps API key
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY';
-    
+
     if (!window.google) {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
@@ -248,89 +289,112 @@ const DetailPage = () => {
     }
   };
 
+  if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>Loading...</div>;
+  }
+
+  if (error) {
+    return <div style={{ color: '#c00', padding: '2rem', textAlign: 'center' }}>{error}</div>;
+  }
+
+  if (!venue) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Venue not found.</div>;
+  }
+
   return (
     <>
-    <div className="detailpage">
+      <div className="detailpage">
         <div className="container" style={{ paddingTop: '20px' }}>
-                {/* Header Section */}
-        <div className="row">
-          <div className="col-12">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', width: '100%' }}>
-              <div style={{ flex: 1 }}>
-                <h1 style={{ fontSize: '32px', fontWeight: '600', margin: '0 0 10px 0' }}>{venue.name}</h1>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
-                    {[1,2,3,4,5].map((star) => (
-                      <span key={star} style={{ color: star <= Math.floor(venue.rating) ? '#FFD700' : '#ddd', fontSize: '16px' }}>★</span>
-                    ))}
-                    <span style={{ marginLeft: '8px', fontSize: '16px', fontWeight: '600' }}>{venue.rating}</span>
-                    <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue.reviewCount} reviews)</span>
+          {/* Header Section */}
+          <div className="row">
+            <div className="col-12">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', width: '100%' }}>
+                <div style={{ flex: 1 }}>
+                  <h1 style={{ fontSize: '32px', fontWeight: '600', margin: '0 0 10px 0' }}>{venue?.name || 'Venue'}</h1>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span key={star} style={{ color: star <= Math.floor(venue?.rating || 0) ? '#FFD700' : '#ddd', fontSize: '16px' }}>★</span>
+                      ))}
+                      <span style={{ marginLeft: '8px', fontSize: '16px', fontWeight: '600' }}>{typeof venue?.rating === 'number' ? venue.rating.toFixed(1) : '0.0'}</span>
+                      <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue?.reviewCount ?? 0} reviews)</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
-                <button style={{
-                  background: '#7930d8',
-                  color: 'white',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}>
-                  Wishlist
-                </button>
-                <button style={{
-                  background: 'transparent',
-                  color: '#7930d8',
-                  border: '1px solid #7930d8',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  cursor: 'pointer'
-                }}>
-                  Share
-                </button>
+                <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
+                  <button style={{
+                    background: '#7930d8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }} onClick={async () => {
+                    try {
+                      setFavBusy(true);
+                      const usersService = (await import('../services/usersService')).default;
+                      try { await usersService.addToFavorites(venue.id); alert('Added to favorites'); }
+                      catch { await usersService.removeFromFavorites(venue.id); alert('Removed from favorites'); }
+                    } catch (e) {
+                      alert(e.message || 'Failed to add to favorites');
+                    } finally {
+                      setFavBusy(false);
+                    }
+                  }} disabled={favBusy}>
+                    {favBusy ? 'Saving...' : 'Wishlist'}
+                  </button>
+                  <button style={{
+                    background: 'transparent',
+                    color: '#7930d8',
+                    border: '1px solid #7930d8',
+                    padding: '8px 16px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}>
+                    Share
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Image Gallery */}
-        <div className="row" style={{ marginBottom: '30px' }}>
-          <div className="col-md-8">
-            <div style={{ 
-              width: '100%', 
-              height: '300px', 
-              borderRadius: '12px', 
-              overflow: 'hidden',
-              backgroundImage: `url(${venue.images[currentImageIndex]})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center'
-            }} />
-          </div>
-          <div className="col-md-4">
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', height: '300px' }}>
-              {venue.images.slice(1, 5).map((image, index) => (
-                <div
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index + 1)}
-                  style={{
-                    backgroundImage: `url(${image})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    border: currentImageIndex === index + 1 ? '2px solid #7930d8' : 'none'
-                  }}
-                />
-              ))}
+          {/* Image Gallery */}
+          <div className="row" style={{ marginBottom: '30px' }}>
+            <div className="col-md-8">
+              <div style={{
+                width: '100%',
+                height: '300px',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                backgroundImage: `url(${(venue?.images || venue?.gallery || [])[currentImageIndex] || venue?.imageUrl || '/images/homepage.png'})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
+              }} />
+            </div>
+            <div className="col-md-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', height: '300px' }}>
+                {((venue?.images || venue?.gallery) || []).slice(1, 5).map((image, index) => (
+                  <div
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index + 1)}
+                    style={{
+                      backgroundImage: `url(${image})`,
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      border: currentImageIndex === index + 1 ? '2px solid #7930d8' : 'none'
+                    }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Booking Section */}
-        <div className="row">
+          {/* Booking Section */}
+          <div className="row">
             <div className="booking-header">
               <div className="booking-header-content">
                 <h3 className="booking-title">Book</h3>
@@ -343,7 +407,7 @@ const DetailPage = () => {
 
             {/* Main Container - Full width */}
             <div className="booking-container">
-              
+
               {/* Left Side - Sports Section */}
               <div className="sports-section">
                 {/* Sports Offered by venue */}
@@ -359,28 +423,23 @@ const DetailPage = () => {
                   </div>
                 </div>
 
-                {/* Tennis Courts */}
+                {/* Venue Courts */}
                 <div className="courts-section">
-                  <h4 className="section-title">Sports offered by venue</h4>
+                  <h4 className="section-title">Courts</h4>
                   <div className="courts-buttons">
-                    <button 
-                      className={`court-btn ${selectedCourtIndex === 0 ? 'active' : ''}`}
-                      onClick={() => handleCourtClick(0)}
-                    >
-                      Tennis Court 1
-                    </button>
-                    <button 
-                      className={`court-btn ${selectedCourtIndex === 1 ? 'active' : ''}`}
-                      onClick={() => handleCourtClick(1)}
-                    >
-                      Tennis Court 2
-                    </button>
-                    <button 
-                      className={`court-btn ${selectedCourtIndex === 2 ? 'active' : ''}`}
-                      onClick={() => handleCourtClick(2)}
-                    >
-                      Tennis Court 3
-                    </button>
+                    {(courts && courts.length ? courts : [
+                      { id: 'c1', name: 'Court 1' },
+                      { id: 'c2', name: 'Court 2' },
+                      { id: 'c3', name: 'Court 3' },
+                    ]).map((court, index) => (
+                      <button
+                        key={court.id || index}
+                        className={`court-btn ${selectedCourtIndex === index ? 'active' : ''}`}
+                        onClick={() => handleCourtClick(index)}
+                      >
+                        {court.name || court.title || `Court ${index + 1}`}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -388,14 +447,14 @@ const DetailPage = () => {
                 <div className="duration-section">
                   <h4 className="section-title">Duration</h4>
                   <div className="duration-controls">
-                    <button 
+                    <button
                       className="duration-btn"
                       onClick={() => duration > 1 && setDuration(duration - 1)}
                     >
                       -
                     </button>
                     <span className="duration-display">{duration} Hr</span>
-                    <button 
+                    <button
                       className="duration-btn"
                       onClick={() => setDuration(duration + 1)}
                     >
@@ -420,18 +479,17 @@ const DetailPage = () => {
                   {showCalendar && (
                     <div className="calendar-popup">
                       <div className="calendar-grid">
-                                                 {generateCalendar().map((day, index) => (
-                           <button
-                             key={index}
-                             className={`calendar-day ${!day ? 'empty' : ''} ${
-                               day && day === selectedDate.getDate() ? 'selected' : ''
-                             }`}
-                             onClick={() => day && handleCalendarDateClick(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day))}
-                             disabled={!day}
-                           >
-                             {day}
-                           </button>
-                         ))}
+                        {generateCalendar().map((day, index) => (
+                          <button
+                            key={index}
+                            className={`calendar-day ${!day ? 'empty' : ''} ${day && day === selectedDate.getDate() ? 'selected' : ''
+                              }`}
+                            onClick={() => day && handleCalendarDateClick(new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day))}
+                            disabled={!day}
+                          >
+                            {day}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -459,165 +517,251 @@ const DetailPage = () => {
 
                 {/* Slots Count */}
                 <div className="slots-count">
-                  <span className="slots-text">10 Slots</span>
+                  <span className="slots-text">{Array.isArray(availability) ? availability.length : 0} Slots</span>
                 </div>
 
-                {/* Time Slots */}
+                {/* Time Slots (dynamic) */}
                 <div className="time-slots">
-                  {[
-                    { time: '01:00', suffix: 'PM', index: 0 },
-                    { time: '02:00', suffix: 'PM', index: 1 },
-                    { time: '03:00', suffix: 'PM', index: 2 },
-                    { time: '04:00', suffix: 'PM', index: 3 },
-                    { time: '06:00', suffix: 'PM', index: 4 },
-                    { time: '07:00', suffix: 'PM', index: 5 },
-                    { time: '08:00', suffix: 'PM', index: 6 },
-                    { time: '09:00', suffix: 'PM', index: 7 }
-                  ].map((slot, index) => (
-                    <button
-                      key={index}
-                      className={`time-slot ${selectedTimeSlot === index ? 'selected' : ''}`}
-                      onClick={() => setSelectedTimeSlot(index)}
-                    >
-                      {slot.time} <span className="time-suffix">{slot.suffix}</span>
-                    </button>
-                  ))}
+                  {(Array.isArray(availability) ? availability : []).map((slot, index) => {
+                    const raw = typeof slot === 'string' ? slot : (slot.time || slot.start || slot.timeSlot || '');
+                    const available = typeof slot === 'object' && slot.hasOwnProperty('available') ? !!slot.available : true;
+                    const label = (() => {
+                      if (!raw) return `Slot ${index + 1}`;
+                      // Convert HH:mm to h:mm AM/PM if needed
+                      const m = raw.match(/^([0-2]?\d):(\d{2})/);
+                      if (!m) return raw;
+                      let h = parseInt(m[1], 10);
+                      const min = m[2];
+                      const ap = h >= 12 ? 'PM' : 'AM';
+                      h = h % 12; if (h === 0) h = 12;
+                      return `${h}:${min} ${ap}`;
+                    })();
+                    return (
+                      <button
+                        key={index}
+                        className={`time-slot ${selectedTimeSlot === index ? 'selected' : ''}`}
+                        onClick={() => available && setSelectedTimeSlot(index)}
+                        disabled={!available}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Pay Button */}
-                <button className="pay-button" onClick={() => alert(`Booking confirmed!`)}>
-                  Pay $14.29
+                <button
+                  className="pay-button"
+                  onClick={async () => {
+                    try {
+                      const selectedCourt = courts[selectedCourtIndex];
+                      const courtId = selectedCourt?.id || selectedCourt?._id;
+                      const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+                      const slots = Array.isArray(availability) ? availability : [];
+                      const chosenSlot = slots[selectedTimeSlot];
+                      if (!courtId) { alert('Please select a court'); return; }
+                      if (!chosenSlot) { alert('Please select a time slot'); return; }
+                      const timeSlot = typeof chosenSlot === 'string' ? chosenSlot : (chosenSlot?.time || chosenSlot?.start || chosenSlot?.timeSlot);
+                      // Optional: check availability
+                      try { await bookingsService.checkAvailability(courtId, dateStr, timeSlot, null); } catch { }
+                      // Create booking
+                      const booking = await bookingsService.createBooking({
+                        venueId: id,
+                        courtId,
+                        date: dateStr,
+                        timeSlot,
+                        durationHours: duration,
+                        sport: selectedSport,
+                      });
+                      // Navigate to booking policy or payment
+                      navigate('/booking-policy', {
+                        state: {
+                          gameType: 'Singles',
+                          venue: venue.name,
+                          duration: `${duration * 60} min`,
+                          sport: selectedSport,
+                          court: selectedCourt?.name || selectedCourt?.title || 'Court',
+                          surface: 'Outdoor | Synthetic Grass',
+                          date: `${weekDays[selectedDate.getDay()]}, ${monthNames[selectedDate.getMonth()]} ${selectedDate.getDate()} at ${timeSlot}`,
+                          partPrice: 7,
+                          fullPrice: 14,
+                          subtotal: 7.29,
+                          bookingId: booking?.id || booking?.bookingId,
+                        }
+                      });
+                    } catch (e) {
+                      alert(e.message || 'Failed to create booking');
+                    }
+                  }}
+                >
+                  Continue
                 </button>
               </div>
+            </div>
           </div>
-        </div>
 
-        {/* Venue Description */}
-        <div style={{ marginTop: '50px', marginBottom: '30px' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '15px' }}>Venue Description</h3>
-          <p style={{ lineHeight: '1.6', color: '#555', marginBottom: '20px' }}>
-            {venue.description}
-          </p>
-        </div>
-
-        {/* Amenities */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Amenities</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-            {venue.amenities.map((amenity, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <img 
-                  src={amenity.icon} 
-                  alt={amenity.title}
-                  style={{ width: '20px', height: '20px' }}
-                />
-                <span style={{ fontSize: '14px' }}>{amenity.title}</span>
-              </div>
-            ))}
+          {/* Venue Description */}
+          <div style={{ marginTop: '50px', marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '15px' }}>Venue Description</h3>
+            <p style={{ lineHeight: '1.6', color: '#555', marginBottom: '20px' }}>
+              {venue?.description || 'No description provided.'}
+            </p>
           </div>
-        </div>
 
-        {/* Venue Location */}
-        <div style={{ marginBottom: '30px' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Venue Location</h3>
-          <div style={{ 
-            position: 'relative', 
-            borderRadius: '12px', 
-            overflow: 'hidden',
-            height: '300px',
-            background: '#f0f0f0'
-          }}>
-            <div id="map" style={{ width: '100%', height: '100%' }} />
+          {/* Amenities */}
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Amenities</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+              {(venue?.amenities || []).map((amenity, index) => (
+                <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <img
+                    src={amenity.icon}
+                    alt={amenity.title}
+                    style={{ width: '20px', height: '20px' }}
+                  />
+                  <span style={{ fontSize: '14px' }}>{amenity.title}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Venue Location */}
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ fontSize: '24px', fontWeight: '600', marginBottom: '20px' }}>Venue Location</h3>
             <div style={{
-              position: 'absolute',
-              bottom: '20px',
-              left: '20px',
-              background: 'rgba(0,0,0,0.8)',
-              color: 'white',
-              padding: '10px 15px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px'
+              position: 'relative',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              height: '300px',
+              background: '#f0f0f0'
             }}>
-              <span>📍</span>
-              <span style={{ fontSize: '14px' }}>{venue.location.address}</span>
-              <span style={{ cursor: 'pointer', fontSize: '18px' }}>👁️</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Terms & Conditions */}
-        <div style={{ marginBottom: '30px' }}>
-          <div style={{ 
-            border: '1px solid #e0e0e0', 
-            borderRadius: '8px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              background: '#f8f9fa',
-              padding: '15px 20px',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer'
-            }}>
-              <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Terms & Conditions</h4>
-              <span style={{ fontSize: '20px' }}>+</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Reviews */}
-        <div style={{ marginBottom: '50px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-            <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>Reviews</h3>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ color: '#FFD700', fontSize: '16px' }}>★</span>
-              <span style={{ marginLeft: '5px', fontSize: '16px', fontWeight: '600' }}>{venue.rating}</span>
-              <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue.reviewCount} reviews)</span>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            {venue.reviews.map((review, index) => (
-              <div key={index} style={{ 
-                background: '#f8f9fa', 
-                padding: '20px', 
-                borderRadius: '12px' 
+              <div id="map" style={{ width: '100%', height: '100%' }} />
+              <div style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '20px',
+                background: 'rgba(0,0,0,0.8)',
+                color: 'white',
+                padding: '10px 15px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '50%',
-                    background: '#7930d8',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'white',
-                    fontSize: '16px',
-                    fontWeight: '600'
-                  }}>
-                    {review.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: '600', fontSize: '14px' }}>{review.name}</div>
-                    <div style={{ display: 'flex' }}>
-                      {[1,2,3,4,5].map((star) => (
-                        <span key={star} style={{ color: star <= review.rating ? '#FFD700' : '#ddd', fontSize: '12px' }}>★</span>
-                      ))}
+                <span>📍</span>
+                <span style={{ fontSize: '14px' }}>{venue?.location?.address || venue?.address || ''}</span>
+                <span style={{ cursor: 'pointer', fontSize: '18px' }}>👁️</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Terms & Conditions */}
+          <div style={{ marginBottom: '30px' }}>
+            <div style={{
+              border: '1px solid #e0e0e0',
+              borderRadius: '8px',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                background: '#f8f9fa',
+                padding: '15px 20px',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}>
+                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>Terms & Conditions</h4>
+                <span style={{ fontSize: '20px' }}>+</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews */}
+          <div style={{ marginBottom: '50px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '24px', fontWeight: '600', margin: 0 }}>Reviews</h3>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: '#FFD700', fontSize: '16px' }}>★</span>
+                <span style={{ marginLeft: '5px', fontSize: '16px', fontWeight: '600' }}>{venue.rating}</span>
+                <span style={{ marginLeft: '5px', fontSize: '14px', color: '#666' }}>({venue.reviewCount} reviews)</span>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+              {(reviews || []).map((review, index) => (
+                <div key={index} style={{
+                  background: '#f8f9fa',
+                  padding: '20px',
+                  borderRadius: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      background: '#7930d8',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '16px',
+                      fontWeight: '600'
+                    }}>
+                      {(review.name || review.userName || 'U').charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: '600', fontSize: '14px' }}>{review.name || review.userName || 'User'}</div>
+                      <div style={{ display: 'flex' }}>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <span key={star} style={{ color: star <= (review.rating || review.stars || 0) ? '#FFD700' : '#ddd', fontSize: '12px' }}>★</span>
+                        ))}
+                      </div>
                     </div>
                   </div>
+                  <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#555', margin: 0 }}>
+                    {review.comment || review.text}
+                  </p>
                 </div>
-                <p style={{ fontSize: '14px', lineHeight: '1.5', color: '#555', margin: 0 }}>
-                  {review.comment}
-                </p>
+              ))}
+            </div>
+
+            {/* Add review */}
+            <div style={{ marginTop: '20px' }}>
+              <h4 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '10px' }}>Add a review</h4>
+              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
+                <label>Rating:</label>
+                <select value={newReview.rating} onChange={(e) => setNewReview({ ...newReview, rating: Number(e.target.value) })}>
+                  {[5, 4, 3, 2, 1].map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
               </div>
-            ))}
+              <textarea
+                placeholder="Share your experience..."
+                value={newReview.comment}
+                onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                style={{ width: '100%', minHeight: '80px', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+              />
+              <div>
+                <button
+                  onClick={async () => {
+                    try {
+                      const payload = { rating: newReview.rating, comment: newReview.comment };
+                      await venuesService.addVenueReview(id, payload);
+                      const refreshed = await venuesService.getVenueReviews(id, 1, 10);
+                      const listR = Array.isArray(refreshed?.reviews) ? refreshed.reviews : (Array.isArray(refreshed) ? refreshed : []);
+                      setReviews(listR);
+                      setNewReview({ rating: 5, comment: '' });
+                    } catch (e) {
+                      alert(e.message || 'Failed to add review');
+                    }
+                  }}
+                  style={{ marginTop: '10px', background: '#7930d8', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '6px', cursor: 'pointer' }}
+                >
+                  Submit Review
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-              </div>
 
         {/* Open Matches Popup */}
         {showOpenMatchesPopup && (
@@ -628,13 +772,13 @@ const DetailPage = () => {
               </button>
               <h2 className="popup-title">Do you Play Singles or Doubles?</h2>
               <div className="game-type-buttons">
-                <button 
+                <button
                   className={`game-type-btn ${selectedGameType === 'singles' ? 'selected' : ''}`}
                   onClick={() => handleGameTypeSelect('singles')}
                 >
                   Singles
                 </button>
-                <button 
+                <button
                   className={`game-type-btn ${selectedGameType === 'doubles' ? 'selected' : ''}`}
                   onClick={() => handleGameTypeSelect('doubles')}
                 >
@@ -644,12 +788,12 @@ const DetailPage = () => {
             </div>
           </div>
         )}
-        
-        
-        </div>
-        <Footer />
-        </>
-   );
- };
+
+
+      </div>
+      <Footer />
+    </>
+  );
+};
 
 export default DetailPage;

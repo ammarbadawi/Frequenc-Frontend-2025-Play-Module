@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faTrash, 
-  faMinus, 
-  faPlus, 
+import {
+  faTrash,
+  faMinus,
+  faPlus,
   faArrowLeft,
   faShoppingCart,
   faCreditCard,
@@ -40,33 +40,43 @@ const Cart = () => {
     fetchCart();
   }, []);
 
-  const updateQuantity = (itemId, newQuantity) => {
+  const refreshCart = async () => {
+    try {
+      const cartData = await paymentsService.getCart();
+      setCartItems(cartData.items || []);
+    } catch {
+      setCartItems([]);
+    }
+  };
+
+  const updateQuantity = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
-    
-    setCartItems(prevItems =>
-      prevItems.map(item =>
-        item.id === itemId ? { ...item, quantity: newQuantity } : item
-      )
-    );
+    try {
+      await paymentsService.updateCartItem(itemId, { quantity: newQuantity });
+      await refreshCart();
+    } catch (e) {
+      alert(e.message || 'Failed to update quantity');
+    }
   };
 
-  const removeItem = (itemId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  const removeItem = async (itemId) => {
+    try {
+      await paymentsService.removeFromCart(itemId);
+      await refreshCart();
+    } catch (e) {
+      alert(e.message || 'Failed to remove item');
+    }
   };
 
-  const applyCoupon = () => {
+  const applyCoupon = async () => {
     if (couponCode.trim() === "") return;
-    
-    // Mock coupon validation
-    if (couponCode.toLowerCase() === "welcome10") {
-      setAppliedCoupon({
-        code: couponCode,
-        discount: 10,
-        type: "percentage"
-      });
+    try {
+      await paymentsService.applyCoupon(couponCode.trim());
+      setAppliedCoupon({ code: couponCode.trim(), discount: 0, type: 'percentage' });
       setCouponCode("");
-    } else {
-      alert("Invalid coupon code");
+      await refreshCart();
+    } catch (e) {
+      alert(e.message || 'Invalid coupon code');
     }
   };
 
@@ -81,8 +91,8 @@ const Cart = () => {
   const calculateDiscount = () => {
     if (!appliedCoupon) return 0;
     const subtotal = calculateSubtotal();
-    return appliedCoupon.type === "percentage" 
-      ? (subtotal * appliedCoupon.discount) / 100 
+    return appliedCoupon.type === "percentage"
+      ? (subtotal * appliedCoupon.discount) / 100
       : appliedCoupon.discount;
   };
 
@@ -146,7 +156,7 @@ const Cart = () => {
                 <div className="item-image">
                   <img src={item.image} alt={item.name} />
                 </div>
-                
+
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   {item.brand && <p className="item-brand">{item.brand}</p>}
@@ -160,7 +170,7 @@ const Cart = () => {
                 </div>
 
                 <div className="item-quantity">
-                  <button 
+                  <button
                     onClick={() => updateQuantity(item.id, item.quantity - 1)}
                     disabled={item.quantity <= 1}
                   >
@@ -176,7 +186,7 @@ const Cart = () => {
                   <p>${(item.price * item.quantity).toFixed(2)}</p>
                 </div>
 
-                <button 
+                <button
                   className="remove-item"
                   onClick={() => removeItem(item.id)}
                   aria-label="Remove item"
@@ -244,7 +254,7 @@ const Cart = () => {
             </div>
 
             <div className="checkout-section">
-              <button 
+              <button
                 className="btn btn-checkout"
                 onClick={handleCheckout}
                 disabled={cartItems.length === 0}
@@ -253,7 +263,7 @@ const Cart = () => {
                 Proceed to Checkout
                 <FontAwesomeIcon icon={faLock} />
               </button>
-              
+
               <div className="secure-checkout">
                 <FontAwesomeIcon icon={faCheckCircle} />
                 <span>Secure checkout powered by Stripe</span>

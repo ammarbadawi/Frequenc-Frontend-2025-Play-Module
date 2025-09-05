@@ -16,6 +16,21 @@ export class NotificationsController {
     return this.notificationsService.markAsRead(data.notificationId, data.userId);
   }
 
+  @MessagePattern('notifications.mark-all-as-read')
+  async markAllAsRead(@Payload() data: { userId: string }) {
+    return this.notificationsService.markAllAsRead(data.userId);
+  }
+
+  @MessagePattern('notifications.delete')
+  async deleteNotification(@Payload() data: { userId: string; notificationId: string }) {
+    return this.notificationsService.deleteNotification(data.userId, data.notificationId);
+  }
+
+  @MessagePattern('notifications.get-count')
+  async getCount(@Payload() data: { userId: string }) {
+    return this.notificationsService.getUnreadCount(data.userId);
+  }
+
   @MessagePattern('notifications.send-email')
   async sendEmail(@Payload() data: { to: string; subject: string; content: string }) {
     return this.notificationsService.sendEmail(data.to, data.subject, data.content);

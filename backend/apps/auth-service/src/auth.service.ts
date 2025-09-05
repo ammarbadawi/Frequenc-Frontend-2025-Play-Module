@@ -1,7 +1,12 @@
-import { Injectable, UnauthorizedException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma/prisma.service';
-import { EmailService } from '../email/email.service';
+import { PrismaService } from '@frequenc/shared';
+import { EmailService } from './email/email.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -50,7 +55,10 @@ export class AuthService {
     });
 
     // Send verification email
-    await this.emailService.sendVerificationEmail(user.email, user.verificationToken);
+    await this.emailService.sendVerificationEmail(
+      user.email,
+      user.verificationToken,
+    );
 
     // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email);
@@ -131,7 +139,9 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<{ message: string }> {
+  async forgotPassword(
+    forgotPasswordDto: ForgotPasswordDto,
+  ): Promise<{ message: string }> {
     const { email } = forgotPasswordDto;
 
     const user = await this.prisma.user.findUnique({
@@ -160,7 +170,9 @@ export class AuthService {
     return { message: 'Password reset email sent successfully' };
   }
 
-  async resetPassword(resetPasswordDto: ResetPasswordDto): Promise<{ message: string }> {
+  async resetPassword(
+    resetPasswordDto: ResetPasswordDto,
+  ): Promise<{ message: string }> {
     const { token, password } = resetPasswordDto;
 
     const user = await this.prisma.user.findFirst({
@@ -256,7 +268,7 @@ export class AuthService {
 
   private async generateTokens(userId: string, email: string) {
     const payload = { sub: userId, email };
-    
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, { expiresIn: '15m' }),
       this.jwtService.signAsync(payload, { expiresIn: '7d' }),
@@ -264,4 +276,4 @@ export class AuthService {
 
     return { accessToken, refreshToken };
   }
-} 
+}

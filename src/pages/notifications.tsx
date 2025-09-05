@@ -6,7 +6,7 @@ import notificationsService from '../services/notificationsService';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -18,7 +18,12 @@ const Notifications = () => {
     try {
       setLoading(true);
       const data = await notificationsService.getUserNotifications();
-      setNotifications(data);
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.notifications)
+          ? data.notifications
+          : [];
+      setNotifications(list);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -29,9 +34,9 @@ const Notifications = () => {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await notificationsService.markAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === notificationId 
+      setNotifications(prev =>
+        prev.map(notif =>
+          notif.id === notificationId
             ? { ...notif, read: true }
             : notif
         )
@@ -103,9 +108,9 @@ const Notifications = () => {
 
   return (
     <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         marginBottom: '30px',
         borderBottom: '1px solid #eee',
@@ -115,7 +120,7 @@ const Notifications = () => {
           <FontAwesomeIcon icon={faBell} style={{ marginRight: '10px' }} />
           Notifications
         </h1>
-        {notifications.length > 0 && (
+        {Array.isArray(notifications) && notifications.length > 0 && (
           <button
             onClick={handleMarkAllAsRead}
             style={{
@@ -132,9 +137,9 @@ const Notifications = () => {
         )}
       </div>
 
-      {notifications.length === 0 ? (
-        <div style={{ 
-          textAlign: 'center', 
+      {!Array.isArray(notifications) || notifications.length === 0 ? (
+        <div style={{
+          textAlign: 'center',
           padding: '40px',
           color: '#7f8c8d'
         }}>
@@ -144,7 +149,7 @@ const Notifications = () => {
         </div>
       ) : (
         <div>
-          {notifications.map((notification) => (
+          {Array.isArray(notifications) && notifications.map((notification) => (
             <div
               key={notification.id}
               style={{
@@ -168,15 +173,15 @@ const Notifications = () => {
                     }}
                   />
                   <div style={{ flex: 1 }}>
-                    <h4 style={{ 
-                      margin: '0 0 8px 0', 
+                    <h4 style={{
+                      margin: '0 0 8px 0',
                       color: notification.read ? '#2c3e50' : '#000',
                       fontWeight: notification.read ? 'normal' : 'bold'
                     }}>
                       {notification.title}
                     </h4>
-                    <p style={{ 
-                      margin: '0 0 10px 0', 
+                    <p style={{
+                      margin: '0 0 10px 0',
                       color: '#7f8c8d',
                       lineHeight: '1.5'
                     }}>

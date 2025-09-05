@@ -1,3 +1,14 @@
+## Environment configuration
+
+Set the following environment variables in a `.env` file (or your hosting env):
+
+```
+VITE_API_URL=http://localhost:3000
+VITE_GOOGLE_MAPS_API_KEY=YOUR_GOOGLE_MAPS_API_KEY
+```
+
+`VITE_API_URL` should point at the API gateway. `VITE_GOOGLE_MAPS_API_KEY` is required for the venue detail map.
+
 # 🏟️ Frequenc Frontend Play Module
 
 A modern React-based play module with microservices architecture for venue booking and marketplace functionality. Built with TypeScript, Vite, and Material-UI for a seamless user experience.
@@ -22,6 +33,7 @@ A modern React-based play module with microservices architecture for venue booki
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v18 or higher)
 - npm or yarn
 - Git
@@ -29,22 +41,26 @@ A modern React-based play module with microservices architecture for venue booki
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/Frequenc-Frontend-2025-Play-Module.git
    cd Frequenc-Frontend-2025-Play-Module
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env
    ```
-   
+
    Add your Google Maps API key:
+
    ```
    VITE_GOOGLE_MAPS_API_KEY=your_actual_api_key_here
    ```
@@ -86,23 +102,27 @@ src/
 ## 🌐 Deployment
 
 ### Build for Production
+
 ```bash
 npm run build
 ```
 
 ### Deploy to GitHub Pages
+
 1. Update `homepage` in `package.json`
 2. Install gh-pages: `npm install --save-dev gh-pages`
 3. Add deploy script: `"deploy": "gh-pages -d build"`
 4. Run: `npm run deploy`
 
 ### Deploy to Vercel
+
 1. Install Vercel CLI: `npm i -g vercel`
 2. Run: `vercel`
 
 ## 🔧 Configuration
 
 ### Google Maps Integration
+
 To enable Google Maps features:
 
 1. Get a Google Maps API key from [Google Cloud Console](https://console.cloud.google.com/google/maps-apis/)
@@ -115,7 +135,9 @@ To enable Google Maps features:
    ```
 
 ### Environment Variables
+
 Create a `.env` file with:
+
 ```
 VITE_API_BASE_URL=your_backend_api_url
 VITE_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
@@ -130,21 +152,25 @@ npm run test
 ## 📦 Dependencies
 
 ### Core
+
 - **React 19** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
 
 ### UI Components
+
 - **Material-UI** - Component library
 - **FontAwesome** - Icons
 - **Swiper** - Carousel/slider
 - **React Slick** - Additional carousel
 
 ### State & Routing
+
 - **React Router DOM** - Client-side routing
 - **React Context** - State management
 
 ### Utilities
+
 - **Axios** - HTTP client
 - **Socket.io** - Real-time communication
 - **Sass** - CSS preprocessing
@@ -171,6 +197,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Support
 
 If you have any questions or need help, please:
+
 - Open an issue on GitHub
 - Check the documentation
 - Contact the maintainers

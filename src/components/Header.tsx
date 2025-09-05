@@ -10,6 +10,7 @@ import {
 import { faSearch, faShoppingCart, faBars, faTimes, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import "../styles/header.scss";
 import { useAuth } from "../contexts/AuthContext";
+import notificationsService from "../services/notificationsService";
 
 const NAV_LINKS = [
   { to: "/connect", label: "Connect" },
@@ -22,6 +23,35 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const isActive = (path) => location.pathname === path;
+  const [unread, setUnread] = useState(0);
+
+  React.useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await notificationsService.getNotificationCount();
+        const count = typeof data === 'number' ? data : (data?.count || 0);
+        if (mounted) setUnread(count);
+      } catch { if (mounted) setUnread(0); }
+    };
+    if (user) load();
+    return () => { mounted = false; };
+  }, [user]);
+
+  React.useEffect(() => {
+    if (!user) return;
+    const unsubscribe = notificationsService.subscribeStream((evt) => {
+      // For simplicity, just refresh count on any event
+      (async () => {
+        try {
+          const data = await notificationsService.getNotificationCount();
+          const count = typeof data === 'number' ? data : (data?.count || 0);
+          setUnread(count);
+        } catch { }
+      })();
+    });
+    return () => { try { unsubscribe && unsubscribe(); } catch { } };
+  }, [user]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -57,8 +87,11 @@ const Header = () => {
         <div className="navbar-icons-group">
           {user ? (
             <>
-              <Link to="/notifications" className="icon-link">
+              <Link to="/notifications" className="icon-link" style={{ position: 'relative' }}>
                 <FontAwesomeIcon icon={faBellRegular} />
+                {unread > 0 && (
+                  <span style={{ position: 'absolute', top: -4, right: -6, background: '#e00', color: '#fff', borderRadius: '10px', padding: '0 6px', fontSize: 10 }}>{unread}</span>
+                )}
               </Link>
               <Link to="/favorites" className="icon-link">
                 <FontAwesomeIcon icon={faHeartRegular} />
@@ -69,8 +102,8 @@ const Header = () => {
               <Link to="/profile" className="icon-link">
                 <FontAwesomeIcon icon={faUserRegular} />
               </Link>
-              <button 
-                onClick={logout} 
+              <button
+                onClick={logout}
                 className="icon-link logout-btn"
                 style={{ background: 'none', border: 'none', cursor: 'pointer' }}
                 title="Logout"
@@ -84,9 +117,9 @@ const Header = () => {
             </Link>
           )}
         </div>
-        <button 
-          className="mobile-menu-toggle" 
-          onClick={toggleMobileMenu} 
+        <button
+          className="mobile-menu-toggle"
+          onClick={toggleMobileMenu}
           aria-label="Toggle menu"
           aria-expanded={isMobileMenuOpen}
         >
@@ -120,6 +153,14 @@ const Header = () => {
                     <FontAwesomeIcon icon={faBellRegular} />
                     <span>Notifications</span>
                   </Link>
+                  <Link to="/bookings" className="mobile-icon-link" onClick={toggleMobileMenu}>
+                    <FontAwesomeIcon icon={faUserRegular} />
+                    <span>My Bookings</span>
+                  </Link>
+                  <Link to="/my-games" className="mobile-icon-link" onClick={toggleMobileMenu}>
+                    <FontAwesomeIcon icon={faUserRegular} />
+                    <span>My Games</span>
+                  </Link>
                   <Link to="/favorites" className="mobile-icon-link" onClick={toggleMobileMenu}>
                     <FontAwesomeIcon icon={faHeartRegular} />
                     <span>Favorites</span>
@@ -132,8 +173,8 @@ const Header = () => {
                     <FontAwesomeIcon icon={faUserRegular} />
                     <span>Profile</span>
                   </Link>
-                  <button 
-                    onClick={() => { logout(); toggleMobileMenu(); }} 
+                  <button
+                    onClick={() => { logout(); toggleMobileMenu(); }}
                     className="mobile-icon-link"
                     style={{ background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
                   >

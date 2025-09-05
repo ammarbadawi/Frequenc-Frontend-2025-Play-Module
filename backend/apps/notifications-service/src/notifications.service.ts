@@ -37,6 +37,28 @@ export class NotificationsService {
     return updatedNotification;
   }
 
+  async markAllAsRead(userId: string) {
+    await this.prisma.notification.updateMany({
+      where: { userId, read: false },
+      data: { read: true }
+    });
+    return { success: true };
+  }
+
+  async deleteNotification(userId: string, notificationId: string) {
+    const existing = await this.prisma.notification.findFirst({ where: { id: notificationId, userId } });
+    if (!existing) {
+      throw new NotFoundException('Notification not found');
+    }
+    await this.prisma.notification.delete({ where: { id: notificationId } });
+    return { success: true };
+  }
+
+  async getUnreadCount(userId: string) {
+    const count = await this.prisma.notification.count({ where: { userId, read: false } });
+    return { count };
+  }
+
   async sendEmail(to: string, subject: string, content: string) {
     // This would integrate with a service like SendGrid, AWS SES, or Nodemailer
     // For now, return a mock response

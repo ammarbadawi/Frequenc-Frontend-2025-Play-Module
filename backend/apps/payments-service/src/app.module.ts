@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../../libs/shared/src/prisma/prisma.module';
+import { PrismaModule } from '@frequenc/shared';
 import { PaymentsController } from './payments.controller';
 import { PaymentsService } from './payments.service';
 
@@ -14,4 +14,4 @@ import { PaymentsService } from './payments.service';
   controllers: [PaymentsController],
   providers: [PaymentsService],
 })
-export class AppModule {} 
+export class AppModule {}

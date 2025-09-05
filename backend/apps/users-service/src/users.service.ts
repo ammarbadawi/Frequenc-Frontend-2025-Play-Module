@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../libs/shared/src/prisma/prisma.service';
+import { PrismaService } from '@frequenc/shared';
 
 @Injectable()
 export class UsersService {
@@ -67,8 +67,9 @@ export class UsersService {
       },
     });
 
-    return friendships.map(friendship => {
-      const friend = friendship.userId === userId ? friendship.friend : friendship.user;
+    return friendships.map((friendship) => {
+      const friend =
+        friendship.userId === userId ? friendship.friend : friendship.user;
       return {
         id: friend.id,
         email: friend.email,
@@ -85,8 +86,14 @@ export class UsersService {
           {
             OR: [
               { email: { contains: query, mode: 'insensitive' } },
-              { profile: { firstName: { contains: query, mode: 'insensitive' } } },
-              { profile: { lastName: { contains: query, mode: 'insensitive' } } },
+              {
+                profile: {
+                  firstName: { contains: query, mode: 'insensitive' },
+                },
+              },
+              {
+                profile: { lastName: { contains: query, mode: 'insensitive' } },
+              },
             ],
           },
           { id: { not: userId } },
@@ -160,7 +167,7 @@ export class UsersService {
       },
     });
 
-    return favorites.map(favorite => favorite.venue);
+    return favorites.map((favorite) => favorite.venue);
   }
 
   async addFavorite(userId: string, venueId: string) {
@@ -203,4 +210,29 @@ export class UsersService {
 
     return { success: true };
   }
-} 
+
+  async getUserStats(userId: string) {
+    const stats = await this.prisma.userStats.findUnique({
+      where: { userId },
+    });
+
+    // Provide sane defaults if missing
+    return (
+      stats || {
+        userId,
+        gamesPlayed: 0,
+        gamesWon: 0,
+        totalHours: 0,
+        averageRating: 0,
+      }
+    );
+  }
+
+  async getUserAchievements(userId: string) {
+    const achievements = await this.prisma.userAchievement.findMany({
+      where: { userId },
+      orderBy: { unlockedAt: 'desc' },
+    });
+    return achievements;
+  }
+}

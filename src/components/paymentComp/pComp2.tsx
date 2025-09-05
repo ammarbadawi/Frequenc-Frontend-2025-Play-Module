@@ -6,13 +6,19 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import friend1 from "../../assets/images/friend1.svg";
 import friend2 from "../../assets/images/friend2.svg";
 import friend3 from "../../assets/images/friend3.svg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import paymentsService from "../../services/paymentsService";
+import bookingsService from "../../services/bookingsService";
 
 const PComp2 = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Select Payment Method");
   const dropdownRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+
+  const { bookingId, subtotal } = (location.state || {}) as any;
 
   const paymentOptions = [
     "Select Payment Method",
@@ -50,16 +56,16 @@ const PComp2 = () => {
             <div className="dropdown-header" onClick={toggleDropdown}>
               <FontAwesomeIcon icon={faCreditCard} className="select-icon" />
               <span className="selected-text">{selectedOption}</span>
-              <FontAwesomeIcon 
-                icon={faChevronDown} 
-                className={`arrow ${isOpen ? 'open' : ''}`} 
+              <FontAwesomeIcon
+                icon={faChevronDown}
+                className={`arrow ${isOpen ? 'open' : ''}`}
               />
             </div>
             {isOpen && (
               <div className="dropdown-options">
                 {paymentOptions.map((option, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`dropdown-option ${option === selectedOption ? 'selected' : ''}`}
                     onClick={() => handleOptionClick(option)}
                   >
@@ -109,8 +115,20 @@ const PComp2 = () => {
             <p style={{ color: "#7930D8" }}>$7.29</p>
           </div>
 
-          <button onClick={() => navigate("/paymentSuccess")}>
-            Continue Payment $7.29
+          <button onClick={async () => {
+            if (selectedOption === 'Select Payment Method') { alert('Please select a payment method'); return; }
+            try {
+              setLoading(true);
+              await paymentsService.processPayment({ amount: subtotal || 7.29, currency: 'USD', bookingId });
+              try { if (bookingId) await bookingsService.confirmBooking(bookingId); } catch { }
+              navigate("/paymentSuccess", { state: { bookingId, sport: 'Tennis', gameType: 'Singles' } });
+            } catch (e) {
+              alert(e.message || 'Payment failed');
+            } finally {
+              setLoading(false);
+            }
+          }} disabled={loading}>
+            {loading ? 'Processing...' : `Continue Payment $${(subtotal || 7.29)}`}
           </button>
         </div>
       </div>

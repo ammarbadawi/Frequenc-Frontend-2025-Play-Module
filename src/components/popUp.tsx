@@ -12,6 +12,7 @@ const PopUp = ({
   chnageBtn,
   setShowComp1,
 }) => {
+  const [isPopUpEnabled, setIsPopUpEnabled] = useState(false);
   // check if Book button is clicked or not ------------------>
   useEffect(() => {
     if (popUpState === 1) {
@@ -28,9 +29,9 @@ const PopUp = ({
           handlePopUp(0);
         }
       };
-      
+
       document.addEventListener("keydown", handleEscKey);
-      
+
       // Add click event to overlay to close popup when clicking outside
       const overlay = document.getElementById("global-overlay");
       if (overlay) {
@@ -39,23 +40,21 @@ const PopUp = ({
             handlePopUp(0);
           }
         };
-        
+
         overlay.addEventListener("click", handleOutsideClick);
-        
+
         // Cleanup
         return () => {
           overlay.removeEventListener("click", handleOutsideClick);
           document.removeEventListener("keydown", handleEscKey);
         };
       }
-      
+
       return () => {
         document.removeEventListener("keydown", handleEscKey);
       };
     }
   }, [isPopUpEnabled]);
-
-  const [isPopUpEnabled, setIsPopUpEnabled] = useState(false);
   const navigate = useNavigate();
   const chnageRoute = (i) => {
     const existingOverlay = document.getElementById("global-overlay");

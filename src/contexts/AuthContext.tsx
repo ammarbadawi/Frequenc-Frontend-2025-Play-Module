@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import authService from '../services/authService';
+import usersService from '../services/usersService';
 
 interface User {
   id: string;
@@ -36,25 +37,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const currentUser = authService.getCurrentUser();
-    if (currentUser && authService.isAuthenticated()) {
-      setUser(currentUser);
-    }
-    
-    // For development/testing - create a test user if no user exists
-    if (!currentUser && process.env.NODE_ENV === 'development') {
-      const testUser: User = {
-        id: 'test-user-1',
-        email: 'test@example.com',
-        name: 'Test User'
-      };
-      localStorage.setItem('user', JSON.stringify(testUser));
-      localStorage.setItem('accessToken', 'test-token');
-      setUser(testUser);
-    }
-    
-    setLoading(false);
+    const hydrate = async () => {
+      try {
+        const currentUser = authService.getCurrentUser();
+        if (currentUser && authService.isAuthenticated()) {
+          // Try to refresh profile from backend
+          try {
+            const profile = await usersService.getProfile();
+            setUser(profile || currentUser);
+            localStorage.setItem('user', JSON.stringify(profile || currentUser));
+          } catch {
+            setUser(currentUser);
+          }
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    hydrate();
   }, []);
 
   const login = async (credentials: any) => {
@@ -90,8 +91,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateProfile = async (profileData: any) => {
     try {
-      const updatedUser = await authService.getProfile();
+      await usersService.updateProfile(profileData);
+      const updatedUser = await usersService.getProfile();
       setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       return updatedUser;
     } catch (error) {
       throw error;

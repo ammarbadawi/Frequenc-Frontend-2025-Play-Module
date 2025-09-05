@@ -15,14 +15,14 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
 
   useEffect(() => {
     handlePopUp(1);
-    
+
     // Add ESC key event listener
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handlePopUp(0);
       }
     };
-    
+
     document.addEventListener("keydown", handleEscKey);
 
     return () => {
@@ -43,14 +43,14 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
       overlay.classList.add("overlay");
       overlay.id = "global-overlay";
       document.body.appendChild(overlay);
-      
+
       // Add click event to overlay to close popup when clicking outside
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
           handlePopUp(0);
         }
       });
-      
+
     } else {
       setIsPopUpEnabled(false);
       // Remove overlay when popup closes
@@ -79,7 +79,7 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
     setTimeout(() => {
       // Show success message briefly
       setShowSuccess(true);
-      
+
       setTimeout(() => {
         // Navigate to payment page with booking details
         const bookingDetails = {
@@ -93,10 +93,10 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
 
         // Store booking details in localStorage for payment page
         localStorage.setItem('bookingDetails', JSON.stringify(bookingDetails));
-        
+
         // Close the popup
         handlePopUp(0);
-        
+
         // Navigate to payment page
         window.location.href = '/payment';
       }, 1000);
@@ -125,7 +125,7 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
       <div className="close-btn" onClick={() => handlePopUp(0)}>
         <FontAwesomeIcon icon={faTimes} />
       </div>
-      
+
       {/* Header Section */}
       <div className="booking-header">
         <div className="header-left">
@@ -144,13 +144,13 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
           <div className="config-section">
             <h3 className="section-title">Sports offered by venue</h3>
             <div className="selection-buttons">
-              <button 
+              <button
                 className={`selection-btn ${selectedSport === "Golf" ? "selected" : ""}`}
                 onClick={() => setSelectedSport("Golf")}
               >
                 Golf
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedSport === "Tennis" ? "selected" : ""}`}
                 onClick={() => setSelectedSport("Tennis")}
               >
@@ -163,19 +163,19 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
           <div className="config-section">
             <h3 className="section-title">Courts offered by venue</h3>
             <div className="selection-buttons">
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 1" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 1")}
               >
                 Tennis Court 1
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 2" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 2")}
               >
                 Tennis Court 2
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 3" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 3")}
               >
@@ -188,7 +188,7 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
           <div className="config-section">
             <h3 className="section-title">Duration</h3>
             <div className="duration-control">
-              <button 
+              <button
                 className="duration-btn"
                 onClick={() => handleDurationChange(-1)}
                 disabled={duration <= 1}
@@ -196,7 +196,7 @@ export const CreatePopUp = ({ setIsPopUpEnabled }) => {
                 −
               </button>
               <span className="duration-display">{duration} Hr</span>
-              <button 
+              <button
                 className="duration-btn"
                 onClick={() => handleDurationChange(1)}
                 disabled={duration >= 8}
@@ -272,17 +272,18 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
   const [selectedTime, setSelectedTime] = useState("01:00 PM");
   const [currentMonth, setCurrentMonth] = useState("September, 2024");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     handlePopUp(1);
-    
+
     // Add ESC key event listener
     const handleEscKey = (e) => {
       if (e.key === "Escape") {
         handlePopUp(0);
       }
     };
-    
+
     document.addEventListener("keydown", handleEscKey);
 
     return () => {
@@ -303,14 +304,14 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
       overlay.classList.add("overlay");
       overlay.id = "global-overlay";
       document.body.appendChild(overlay);
-      
+
       // Add click event to overlay to close popup when clicking outside
       overlay.addEventListener("click", (e) => {
         if (e.target === overlay) {
           handlePopUp(0);
         }
       });
-      
+
     } else {
       setIsMatchPopUpEnabled(false);
       // Remove overlay when popup closes
@@ -327,27 +328,28 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
     }
   };
 
-  const handleCreateMatch = () => {
-    // Show loading state
-    const createBtn = document.querySelector('.create-match-btn');
-    if (createBtn) {
-      createBtn.textContent = 'Creating...';
-      createBtn.disabled = true;
-    }
-
-    // Simulate match creation
-    setTimeout(() => {
-      // Show success message briefly
+  const handleCreateMatch = async () => {
+    try {
+      setCreating(true);
+      const gamesService = (await import('../../services/gamesService')).default;
+      await gamesService.createGame({
+        sport: selectedSport,
+        court: selectedCourt,
+        durationHours: duration,
+        dateLabel: selectedDate,
+        timeLabel: selectedTime,
+        visibility: 'public'
+      });
       setShowSuccess(true);
-      
       setTimeout(() => {
-        // Close the popup
         handlePopUp(0);
-        
-        // Show success popup
         setIsSuccessPopUpEnabled(true);
       }, 1000);
-    }, 1500);
+    } catch (e) {
+      alert(e.message || 'Failed to create match');
+    } finally {
+      setCreating(false);
+    }
   };
 
   const openMatches = () => {
@@ -372,7 +374,7 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
       <div className="close-btn" onClick={() => handlePopUp(0)}>
         <FontAwesomeIcon icon={faTimes} />
       </div>
-      
+
       {/* Header Section */}
       <div className="booking-header">
         <div className="header-left">
@@ -391,13 +393,13 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
           <div className="config-section">
             <h3 className="section-title">Sports offered by venue</h3>
             <div className="selection-buttons">
-              <button 
+              <button
                 className={`selection-btn ${selectedSport === "Golf" ? "selected" : ""}`}
                 onClick={() => setSelectedSport("Golf")}
               >
                 Golf
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedSport === "Tennis" ? "selected" : ""}`}
                 onClick={() => setSelectedSport("Tennis")}
               >
@@ -410,19 +412,19 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
           <div className="config-section">
             <h3 className="section-title">Courts offered by venue</h3>
             <div className="selection-buttons">
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 1" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 1")}
               >
                 Tennis Court 1
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 2" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 2")}
               >
                 Tennis Court 2
               </button>
-              <button 
+              <button
                 className={`selection-btn ${selectedCourt === "Tennis Court 3" ? "selected" : ""}`}
                 onClick={() => setSelectedCourt("Tennis Court 3")}
               >
@@ -435,7 +437,7 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
           <div className="config-section">
             <h3 className="section-title">Duration</h3>
             <div className="duration-control">
-              <button 
+              <button
                 className="duration-btn"
                 onClick={() => handleDurationChange(-1)}
                 disabled={duration <= 1}
@@ -443,7 +445,7 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
                 −
               </button>
               <span className="duration-display">{duration} Hr</span>
-              <button 
+              <button
                 className="duration-btn"
                 onClick={() => handleDurationChange(1)}
                 disabled={duration >= 8}
@@ -502,8 +504,8 @@ export const CreateMatchPopUp = ({ setIsMatchPopUpEnabled, setIsSuccessPopUpEnab
           </div>
 
           {/* Create Match Button */}
-          <button className="payment-btn create-match-btn" onClick={handleCreateMatch}>
-            Create Match
+          <button className="payment-btn create-match-btn" onClick={handleCreateMatch} disabled={creating}>
+            {creating ? 'Creating...' : 'Create Match'}
           </button>
         </div>
       </div>

@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React from "react";
-import Slotbox from "../components/slotbox";
+import VenueCard from "../components/VenueCard";
+import venuesService from "../services/venuesService";
+import { mockVenues } from "../mocks/venues";
 import {
   CreatePopUp,
   CreateMatchPopUp,
@@ -12,6 +14,47 @@ const Marketplace = () => {
   const [isMatchPopUpEnabled, setIsMatchPopUpEnabled] = React.useState(false);
   const [isSuccessPopUpEnabled, setIsSuccessPopUpEnabled] =
     React.useState(false);
+  const [venues, setVenues] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
+  const [selectedSport, setSelectedSport] = React.useState("");
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 400);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const fetchVenues = React.useCallback(async () => {
+    try {
+      setLoading(true);
+      let list = [];
+      if (debouncedSearch) {
+        const data = await venuesService.searchVenues(debouncedSearch, selectedSport ? { sportType: selectedSport } : {});
+        list = Array.isArray(data?.venues) ? data.venues : (Array.isArray(data) ? data : []);
+      } else {
+        const data = await venuesService.getVenues({ page: 1, limit: 12, ...(selectedSport ? { sportType: selectedSport } : {}) });
+        list = Array.isArray(data?.venues) ? data.venues : (Array.isArray(data) ? data : []);
+      }
+      if (list && list.length) {
+        setVenues(list);
+        setError("");
+      } else {
+        setVenues([]);
+        setError("");
+      }
+    } catch (e) {
+      setError(e.message || "Failed to load venues");
+      setVenues([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [debouncedSearch, selectedSport]);
+
+  React.useEffect(() => {
+    fetchVenues();
+  }, [fetchVenues]);
 
   return (
     <>
@@ -126,60 +169,60 @@ const Marketplace = () => {
 
                   <ul>
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport("")}>
                         All
-                        <input type="checkbox" checked="checked" />
+                        <input type="checkbox" checked={selectedSport === ""} readOnly />
                         <span class="checkmark"></span>
                       </label>
                       <span class="numberc">(23)</span>{" "}
                     </li>
 
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Football" ? "" : "Football")}>
                         Football
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Football"} readOnly />
                         <span class="checkmark"></span>
                       </label>
                       <span class="numberc">(12)</span>{" "}
                     </li>
 
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Badminton" ? "" : "Badminton")}>
                         Badminton
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Badminton"} readOnly />
                         <span class="checkmark"></span>
                       </label>
                       <span class="numberc">(12)</span>{" "}
                     </li>
 
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Rugby" ? "" : "Rugby")}>
                         Rugby
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Rugby"} readOnly />
                         <span class="checkmark"></span>
                       </label>
                       <span class="numberc">(45)</span>{" "}
                     </li>
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Golf" ? "" : "Golf")}>
                         Golf
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Golf"} readOnly />
                         <span class="checkmark"></span>
                       </label>{" "}
                       <span class="numberc">(43)</span>
                     </li>
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Tennis" ? "" : "Tennis")}>
                         Tennis
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Tennis"} readOnly />
                         <span class="checkmark"></span>
                       </label>{" "}
                       <span class="numberc">(23)</span>
                     </li>
                     <li>
-                      <label class="containerchj">
+                      <label class="containerchj" onClick={() => setSelectedSport(selectedSport === "Golf" ? "" : "Golf")}>
                         Golf
-                        <input type="checkbox" />
+                        <input type="checkbox" checked={selectedSport === "Golf"} readOnly />
                         <span class="checkmark"></span>
                       </label>
                       <span class="numberc">(23)</span>{" "}
@@ -205,6 +248,8 @@ const Marketplace = () => {
                           type="text"
                           placeholder="Search..."
                           class="form-control"
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
                         />
                         <span class="submitnew">
                           <svg
@@ -236,12 +281,14 @@ const Marketplace = () => {
                     </div>
                   </div>
                   <div class="row">
-                    <Slotbox />
-                    <Slotbox />
-                    <Slotbox />
-                    <Slotbox />
-                    <Slotbox />
-                    <Slotbox />
+                    {loading && <div class="col-12">Loading venues...</div>}
+                    {error && !loading && <div class="col-12" style={{ color: '#c00' }}>{error}</div>}
+                    {!loading && !error && venues.length === 0 && (
+                      <div class="col-12" style={{ color: '#666' }}>No venues found.</div>
+                    )}
+                    {!loading && !error && venues.map(v => (
+                      <VenueCard key={v.id} venue={v} />
+                    ))}
                   </div>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../../libs/shared/src/prisma/prisma.module';
+import { PrismaModule } from '@frequenc/shared';
 import { VenuesController } from './venues.controller';
 import { VenuesService } from './venues.service';
 
@@ -14,4 +14,4 @@ import { VenuesService } from './venues.service';
   controllers: [VenuesController],
   providers: [VenuesService],
 })
-export class AppModule {} 
+export class AppModule {}

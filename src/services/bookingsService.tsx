@@ -50,8 +50,8 @@ class BookingsService {
   // Get time slots for a court
   async getTimeSlots(courtId, date) {
     try {
-      const params = new URLSearchParams({ date });
-      const response = await api.get(`/bookings/${courtId}/time-slots?${params.toString()}`);
+      const params = new URLSearchParams({ courtId, date });
+      const response = await api.get(`/bookings/time-slots?${params.toString()}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch time slots');
@@ -64,8 +64,7 @@ class BookingsService {
       const response = await api.post('/bookings/check-availability', {
         courtId,
         date,
-        startTime,
-        endTime
+        timeSlot: startTime
       });
       return response.data;
     } catch (error) {
@@ -80,6 +79,16 @@ class BookingsService {
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to confirm booking');
+    }
+  }
+
+  // Add invited players
+  async addInvites(bookingId, playerIds = []) {
+    try {
+      const response = await api.post(`/bookings/${bookingId}/invites`, { playerIds });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add invites');
     }
   }
 }

@@ -35,8 +35,8 @@ class UsersService {
   // Search users
   async searchUsers(query, filters = {}) {
     try {
-      const response = await api.get('/users/search', { 
-        params: { query, ...filters } 
+      const response = await api.get('/users/search', {
+        params: { query, ...filters }
       });
       return response.data;
     } catch (error) {
@@ -47,7 +47,7 @@ class UsersService {
   // Add friend
   async addFriend(friendId) {
     try {
-      const response = await api.post('/users/friends', { friendId });
+      const response = await api.post(`/users/friends/${friendId}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to add friend');
@@ -77,7 +77,7 @@ class UsersService {
   // Add to favorites
   async addToFavorites(venueId) {
     try {
-      const response = await api.post('/users/favorites', { venueId });
+      const response = await api.post(`/users/favorites/${venueId}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to add to favorites');

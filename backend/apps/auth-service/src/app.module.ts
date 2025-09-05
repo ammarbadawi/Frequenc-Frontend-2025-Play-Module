@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { JwtStrategy } from './strategies/jwt.strategy';
-import { LocalStrategy } from './strategies/local.strategy';
-import { PrismaModule } from '../prisma/prisma.module';
-import { EmailModule } from '../email/email.module';
+import { PrismaModule } from '@frequenc/shared';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -31,7 +29,7 @@ import { EmailModule } from '../email/email.module';
     EmailModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService],
   exports: [AuthService],
 })
-export class AppModule {} 
+export class AppModule {}

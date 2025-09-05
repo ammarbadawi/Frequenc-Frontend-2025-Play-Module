@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../libs/shared/src/prisma/prisma.service';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { PrismaService } from '@frequenc/shared';
 
 @Injectable()
 export class BookingsService {
@@ -15,27 +19,27 @@ export class BookingsService {
           include: {
             court: {
               include: {
-                venue: true
-              }
-            }
-          }
+                venue: true,
+              },
+            },
+          },
         },
         user: {
           select: {
             id: true,
-            profile: true
-          }
-        }
+            profile: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
       skip,
-      take: limit
+      take: limit,
     });
 
     const total = await this.prisma.booking.count({
-      where: { userId }
+      where: { userId },
     });
 
     return {
@@ -44,16 +48,22 @@ export class BookingsService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
   async createBooking(userId: string, bookingData: any) {
-    const { courtId, date, startTime, endTime, gameType, players } = bookingData;
+    const { courtId, date, startTime, endTime, gameType, players } =
+      bookingData;
 
     // Check availability
-    const isAvailable = await this.checkAvailability(courtId, date, startTime, endTime);
+    const isAvailable = await this.checkAvailability(
+      courtId,
+      date,
+      startTime,
+      endTime,
+    );
     if (!isAvailable.available) {
       throw new BadRequestException('Selected time slot is not available');
     }
@@ -64,8 +74,8 @@ export class BookingsService {
         courtId,
         date: new Date(date),
         startTime,
-        endTime
-      }
+        endTime,
+      },
     });
 
     if (!timeSlot) {
@@ -74,8 +84,8 @@ export class BookingsService {
           courtId,
           date: new Date(date),
           startTime,
-          endTime
-        }
+          endTime,
+        },
       });
     }
 
@@ -86,25 +96,25 @@ export class BookingsService {
         timeSlotId: timeSlot.id,
         gameType,
         status: 'PENDING',
-        totalPrice: bookingData.totalPrice || 0
+        totalPrice: bookingData.totalPrice || 0,
       },
       include: {
         timeSlot: {
           include: {
             court: {
               include: {
-                venue: true
-              }
-            }
-          }
+                venue: true,
+              },
+            },
+          },
         },
         user: {
           select: {
             id: true,
-            profile: true
-          }
-        }
-      }
+            profile: true,
+          },
+        },
+      },
     });
 
     // Add players if provided
@@ -113,8 +123,8 @@ export class BookingsService {
         data: players.map((playerId: string) => ({
           gameId: booking.id,
           userId: playerId,
-          role: 'PLAYER'
-        }))
+          role: 'PLAYER',
+        })),
       });
     }
 
@@ -123,7 +133,7 @@ export class BookingsService {
 
   async updateBooking(bookingId: string, updateData: any) {
     const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId }
+      where: { id: bookingId },
     });
 
     if (!booking) {
@@ -138,26 +148,43 @@ export class BookingsService {
           include: {
             court: {
               include: {
-                venue: true
-              }
-            }
-          }
+                venue: true,
+              },
+            },
+          },
         },
         user: {
           select: {
             id: true,
-            profile: true
-          }
-        }
-      }
+            profile: true,
+          },
+        },
+      },
     });
 
     return updatedBooking;
   }
 
+  async addInvites(bookingId: string, playerIds: string[]) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id: bookingId },
+    });
+    if (!booking) {
+      throw new NotFoundException('Booking not found');
+    }
+    if (playerIds && playerIds.length) {
+      // Store as playerIds array on booking for now
+      await this.prisma.booking.update({
+        where: { id: bookingId },
+        data: { playerIds },
+      });
+    }
+    return { success: true };
+  }
+
   async cancelBooking(bookingId: string) {
     const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId }
+      where: { id: bookingId },
     });
 
     if (!booking) {
@@ -176,20 +203,34 @@ export class BookingsService {
           include: {
             court: {
               include: {
-                venue: true
-              }
-            }
-          }
-        }
-      }
+                venue: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    // If linked game exists, cancel and clear participants
+    try {
+      const game = await this.prisma.game.findFirst({ where: { bookingId } });
+      if (game) {
+        await this.prisma.game.update({
+          where: { id: game.id },
+          data: { status: 'CANCELLED', currentPlayers: 0 },
+        });
+        await this.prisma.gameParticipant.deleteMany({
+          where: { gameId: game.id },
+        });
+      }
+    } catch {}
 
     return cancelledBooking;
   }
 
   async getTimeSlots(courtId: string, date?: string) {
     const where: any = { courtId };
-    
+
     if (date) {
       where.date = new Date(date);
     }
@@ -203,27 +244,32 @@ export class BookingsService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
-        }
+                profile: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        startTime: 'asc'
-      }
+        startTime: 'asc',
+      },
     });
 
-    return timeSlots.map(slot => ({
+    return timeSlots.map((slot) => ({
       id: slot.id,
       startTime: slot.startTime,
       endTime: slot.endTime,
       isAvailable: !slot.booking,
-      court: slot.court
+      court: slot.court,
     }));
   }
 
-  async checkAvailability(courtId: string, date: string, startTime: string, endTime: string) {
+  async checkAvailability(
+    courtId: string,
+    date: string,
+    startTime: string,
+    endTime: string,
+  ) {
     const conflictingBooking = await this.prisma.booking.findFirst({
       where: {
         timeSlot: {
@@ -233,35 +279,35 @@ export class BookingsService {
             {
               AND: [
                 { startTime: { lte: startTime } },
-                { endTime: { gt: startTime } }
-              ]
+                { endTime: { gt: startTime } },
+              ],
             },
             {
               AND: [
                 { startTime: { lt: endTime } },
-                { endTime: { gte: endTime } }
-              ]
+                { endTime: { gte: endTime } },
+              ],
             },
             {
               AND: [
                 { startTime: { gte: startTime } },
-                { endTime: { lte: endTime } }
-              ]
-            }
-          ]
-        }
-      }
+                { endTime: { lte: endTime } },
+              ],
+            },
+          ],
+        },
+      },
     });
 
     return {
       available: !conflictingBooking,
-      conflictingBooking: conflictingBooking || null
+      conflictingBooking: conflictingBooking || null,
     };
   }
 
   async confirmBooking(bookingId: string) {
     const booking = await this.prisma.booking.findUnique({
-      where: { id: bookingId }
+      where: { id: bookingId },
     });
 
     if (!booking) {
@@ -276,14 +322,14 @@ export class BookingsService {
           include: {
             court: {
               include: {
-                venue: true
-              }
-            }
-          }
-        }
-      }
+                venue: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     return confirmedBooking;
   }
-} 
+}

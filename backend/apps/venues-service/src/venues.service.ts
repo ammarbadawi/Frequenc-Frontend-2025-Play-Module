@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../libs/shared/src/prisma/prisma.service';
+import { PrismaService } from '@frequenc/shared';
 
 @Injectable()
 export class VenuesService {
@@ -7,21 +7,21 @@ export class VenuesService {
 
   async getAllVenues(filters?: any, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
-    
+
     const where: any = {};
-    
+
     if (filters?.sport) {
       where.courts = {
         some: {
-          sportType: filters.sport
-        }
+          sportType: filters.sport,
+        },
       };
     }
-    
+
     if (filters?.location) {
       where.address = {
         contains: filters.location,
-        mode: 'insensitive'
+        mode: 'insensitive',
       };
     }
 
@@ -34,16 +34,16 @@ export class VenuesService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
+                profile: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
-            reviews: true
-          }
-        }
+            reviews: true,
+          },
+        },
       },
       skip,
       take: limit,
@@ -57,8 +57,8 @@ export class VenuesService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -68,28 +68,28 @@ export class VenuesService {
       include: {
         courts: {
           include: {
-            timeSlots: true
-          }
+            timeSlots: true,
+          },
         },
         reviews: {
           include: {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
+                profile: true,
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc'
-          }
+            createdAt: 'desc',
+          },
         },
         _count: {
           select: {
-            reviews: true
-          }
-        }
-      }
+            reviews: true,
+          },
+        },
+      },
     });
 
     if (!venue) {
@@ -104,8 +104,8 @@ export class VenuesService {
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
         { description: { contains: query, mode: 'insensitive' } },
-        { address: { contains: query, mode: 'insensitive' } }
-      ]
+        { address: { contains: query, mode: 'insensitive' } },
+      ],
     };
 
     if (filters?.lat && filters?.lng) {
@@ -122,13 +122,13 @@ export class VenuesService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
-        }
+                profile: true,
+              },
+            },
+          },
+        },
       },
-      take: 20
+      take: 20,
     });
 
     return venues;
@@ -138,8 +138,8 @@ export class VenuesService {
     const where: any = {
       date: new Date(date),
       court: {
-        venueId: venueId
-      }
+        venueId: venueId,
+      },
     };
 
     if (courtId) {
@@ -155,28 +155,28 @@ export class VenuesService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
-        }
+                profile: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
-        startTime: 'asc'
-      }
+        startTime: 'asc',
+      },
     });
 
     return {
       date,
       venueId,
-      timeSlots: timeSlots.map(slot => ({
+      timeSlots: timeSlots.map((slot) => ({
         id: slot.id,
         startTime: slot.startTime,
         endTime: slot.endTime,
         isAvailable: !slot.booking,
         court: slot.court,
-        booking: slot.booking
-      }))
+        booking: slot.booking,
+      })),
     };
   }
 
@@ -186,10 +186,10 @@ export class VenuesService {
       include: {
         timeSlots: {
           where: {
-            date: new Date()
-          }
-        }
-      }
+            date: new Date(),
+          },
+        },
+      },
     });
 
     return courts;
@@ -204,19 +204,19 @@ export class VenuesService {
         user: {
           select: {
             id: true,
-            profile: true
-          }
-        }
+            profile: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
+        createdAt: 'desc',
       },
       skip,
-      take: limit
+      take: limit,
     });
 
     const total = await this.prisma.review.count({
-      where: { venueId }
+      where: { venueId },
     });
 
     return {
@@ -225,8 +225,8 @@ export class VenuesService {
         page,
         limit,
         total,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     };
   }
 
@@ -236,16 +236,16 @@ export class VenuesService {
         venueId,
         userId,
         rating: reviewData.rating,
-        comment: reviewData.comment
+        comment: reviewData.comment,
       },
       include: {
         user: {
           select: {
             id: true,
-            profile: true
-          }
-        }
-      }
+            profile: true,
+          },
+        },
+      },
     });
 
     return review;
@@ -256,7 +256,70 @@ export class VenuesService {
     // For now, return a mock response
     return {
       success: true,
-      imageUrl: `https://example.com/venues/${venueId}/images/${Date.now()}.jpg`
+      imageUrl: `https://example.com/venues/${venueId}/images/${Date.now()}.jpg`,
     };
   }
-} 
+
+  async createVenue(data: any) {
+    const venue = await this.prisma.venue.create({
+      data: {
+        name: data.name,
+        address: data.address,
+        latitude: data.latitude,
+        longitude: data.longitude,
+        description: data.description ?? '',
+        phone: data.phone ?? null,
+        email: data.email ?? null,
+        imageUrl: data.imageUrl ?? null,
+        gallery: data.gallery ?? [],
+        amenities: data.amenities ?? [],
+        openingTime: data.openingTime ?? '08:00',
+        closingTime: data.closingTime ?? '22:00',
+        rating: 0,
+        reviewCount: 0,
+        ownerId: data.ownerId,
+      },
+    });
+    return venue;
+  }
+
+  async updateVenue(id: string, update: any) {
+    const existing = await this.prisma.venue.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Venue not found');
+    }
+    const venue = await this.prisma.venue.update({
+      where: { id },
+      data: update,
+    });
+    return venue;
+  }
+
+  async deleteVenue(id: string) {
+    const existing = await this.prisma.venue.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundException('Venue not found');
+    }
+    await this.prisma.court.deleteMany({ where: { venueId: id } });
+    await this.prisma.review.deleteMany({ where: { venueId: id } });
+    await this.prisma.venue.delete({ where: { id } });
+    return { success: true };
+  }
+
+  async addCourt(venueId: string, data: any) {
+    const court = await this.prisma.court.create({
+      data: {
+        venueId,
+        name: data.name,
+        sportType: data.sportType,
+        surface: data.surface,
+        type: data.type,
+        hourlyRate: data.hourlyRate,
+        isAvailable: true,
+        description: data.description ?? null,
+        images: data.images ?? [],
+      },
+    });
+    return court;
+  }
+}

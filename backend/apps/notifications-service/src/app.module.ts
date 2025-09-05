@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../../libs/shared/src/prisma/prisma.module';
+import { PrismaModule } from '@frequenc/shared';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 
@@ -14,4 +14,4 @@ import { NotificationsService } from './notifications.service';
   controllers: [NotificationsController],
   providers: [NotificationsService],
 })
-export class AppModule {} 
+export class AppModule {}

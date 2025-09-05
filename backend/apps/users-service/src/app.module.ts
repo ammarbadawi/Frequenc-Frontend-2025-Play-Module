@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '../../libs/shared/src/prisma/prisma.module';
+import { PrismaModule } from '@frequenc/shared';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 
@@ -14,4 +14,4 @@ import { UsersService } from './users.service';
   controllers: [UsersController],
   providers: [UsersService],
 })
-export class AppModule {} 
+export class AppModule {}

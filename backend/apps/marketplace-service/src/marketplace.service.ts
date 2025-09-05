@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../../libs/shared/src/prisma/prisma.service';
+import { PrismaService } from '@frequenc/shared';
 
 @Injectable()
 export class MarketplaceService {
@@ -14,14 +14,14 @@ export class MarketplaceService {
 
     if (filters?.priceMin) {
       where.price = {
-        gte: filters.priceMin
+        gte: filters.priceMin,
       };
     }
 
     if (filters?.priceMax) {
       where.price = {
         ...where.price,
-        lte: filters.priceMax
+        lte: filters.priceMax,
       };
     }
 
@@ -33,20 +33,20 @@ export class MarketplaceService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
+                profile: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
-            reviews: true
-          }
-        }
+            reviews: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return products;
@@ -61,20 +61,20 @@ export class MarketplaceService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
+                profile: true,
+              },
+            },
           },
           orderBy: {
-            createdAt: 'desc'
-          }
+            createdAt: 'desc',
+          },
         },
         _count: {
           select: {
-            reviews: true
-          }
-        }
-      }
+            reviews: true,
+          },
+        },
+      },
     });
 
     if (!product) {
@@ -89,7 +89,7 @@ export class MarketplaceService {
 
     // Calculate total
     const total = products.reduce((sum: number, product: any) => {
-      return sum + (product.price * product.quantity);
+      return sum + product.price * product.quantity;
     }, 0);
 
     // Create order
@@ -104,17 +104,17 @@ export class MarketplaceService {
           create: products.map((product: any) => ({
             productId: product.id,
             quantity: product.quantity,
-            price: product.price
-          }))
-        }
+            price: product.price,
+          })),
+        },
       },
       include: {
         items: {
           include: {
-            product: true
-          }
-        }
-      }
+            product: true,
+          },
+        },
+      },
     });
 
     return order;
@@ -126,13 +126,13 @@ export class MarketplaceService {
       include: {
         items: {
           include: {
-            product: true
-          }
-        }
+            product: true,
+          },
+        },
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: 'desc',
+      },
     });
 
     return orders;
@@ -143,8 +143,8 @@ export class MarketplaceService {
       OR: [
         { name: { contains: query, mode: 'insensitive' } },
         { description: { contains: query, mode: 'insensitive' } },
-        { category: { contains: query, mode: 'insensitive' } }
-      ]
+        { category: { contains: query, mode: 'insensitive' } },
+      ],
     };
 
     if (filters?.category) {
@@ -153,14 +153,14 @@ export class MarketplaceService {
 
     if (filters?.priceMin) {
       where.price = {
-        gte: filters.priceMin
+        gte: filters.priceMin,
       };
     }
 
     if (filters?.priceMax) {
       where.price = {
         ...where.price,
-        lte: filters.priceMax
+        lte: filters.priceMax,
       };
     }
 
@@ -172,20 +172,108 @@ export class MarketplaceService {
             user: {
               select: {
                 id: true,
-                profile: true
-              }
-            }
-          }
+                profile: true,
+              },
+            },
+          },
         },
         _count: {
           select: {
-            reviews: true
-          }
-        }
+            reviews: true,
+          },
+        },
       },
-      take: 20
+      take: 20,
     });
 
     return products;
   }
-} 
+
+  async getCategories() {
+    const categories = await this.prisma.product.findMany({
+      distinct: ['category'],
+      select: { category: true },
+      where: { isActive: true },
+    });
+    return categories.map((c) => c.category).filter(Boolean);
+  }
+
+  async getOrderDetails(userId: string, orderId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId },
+      include: {
+        items: { include: { product: true } },
+      },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    return order;
+  }
+
+  async cancelOrder(userId: string, orderId: string) {
+    const order = await this.prisma.order.findFirst({
+      where: { id: orderId, userId },
+    });
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+    if (order.status !== 'PENDING') {
+      throw new Error('Only pending orders can be cancelled');
+    }
+    return this.prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'CANCELLED' },
+    });
+  }
+
+  async createProduct(userId: string, productData: any) {
+    // In real app, check permissions (vendor/admin). Here we allow creation.
+    const product = await this.prisma.product.create({
+      data: {
+        name: productData.name,
+        description: productData.description,
+        price: productData.price,
+        category: productData.category,
+        stock: productData.stock ?? 0,
+        images: productData.images ?? [],
+        isActive: true,
+      },
+    });
+    return product;
+  }
+
+  async updateProduct(userId: string, productId: string, update: any) {
+    const existing = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!existing) {
+      throw new NotFoundException('Product not found');
+    }
+    const product = await this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        name: update.name ?? existing.name,
+        description: update.description ?? existing.description,
+        price: update.price ?? existing.price,
+        category: update.category ?? existing.category,
+        stock: update.stock ?? existing.stock,
+        images: update.images ?? existing.images,
+        isActive: update.isActive ?? existing.isActive,
+      },
+    });
+    return product;
+  }
+
+  async deleteProduct(userId: string, productId: string) {
+    const existing = await this.prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!existing) {
+      throw new NotFoundException('Product not found');
+    }
+    await this.prisma.orderItem.deleteMany({ where: { productId } });
+    await this.prisma.product.delete({ where: { id: productId } });
+    return { success: true };
+  }
+}

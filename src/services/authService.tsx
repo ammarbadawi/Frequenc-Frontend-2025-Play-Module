@@ -7,12 +7,12 @@ class AuthService {
     try {
       const response = await api.post('/auth/register', userData);
       const { accessToken, refreshToken, user } = response.data;
-      
+
       // Store tokens
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
-      
+
       return { success: true, user };
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Registration failed');
@@ -24,12 +24,12 @@ class AuthService {
     try {
       const response = await api.post('/auth/login', credentials);
       const { accessToken, refreshToken, user } = response.data;
-      
+
       // Store tokens
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('user', JSON.stringify(user));
-      
+
       return { success: true, user };
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Login failed');
@@ -53,7 +53,7 @@ class AuthService {
   // Get current user profile
   async getProfile() {
     try {
-      const response = await api.get('/auth/me');
+      const response = await api.get('/users/profile');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to get profile');

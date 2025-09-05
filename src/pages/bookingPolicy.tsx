@@ -1,6 +1,8 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import paymentsService from "../services/paymentsService";
+import bookingsService from "../services/bookingsService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCreditCard } from "@fortawesome/free-regular-svg-icons";
 import "../styles/bookingPolicy.css";
@@ -11,7 +13,7 @@ const BookingPolicy = () => {
   const [selectedPayment, setSelectedPayment] = useState('part');
   const [showPaymentMethod, setShowPaymentMethod] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  
+
   // Get data passed from previous page
   const gameDataRaw = location.state || {
     gameType: 'Singles',
@@ -51,11 +53,24 @@ const BookingPolicy = () => {
 
   const handlePayment = async () => {
     setPaymentLoading(true);
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      const paymentPayload = {
+        amount: selectedPayment === 'part' ? gameData.subtotal : gameData.fullPrice,
+        currency: 'USD',
+        bookingId: gameData.bookingId,
+        payInFull: selectedPayment === 'everything',
+      };
+      await paymentsService.processPayment(paymentPayload);
+      if (gameData.bookingId) {
+        try { await bookingsService.confirmBooking(gameData.bookingId); } catch { }
+      }
+      navigate('/paymentSuccess', { state: { gameType: gameData.gameType, bookingId: gameData.bookingId, sport: gameData.sport } });
+    } catch (e) {
+      const msg = e?.response?.data?.message || e?.message || 'Payment failed';
+      alert(msg);
+    } finally {
       setPaymentLoading(false);
-      navigate('/paymentSuccess', { state: { gameType: gameData.gameType } });
-    }, 2000);
+    }
   };
 
 
@@ -63,7 +78,7 @@ const BookingPolicy = () => {
   const handleAddPlayers = () => {
     navigate('/addFriends');
   };
-  
+
 
 
 
@@ -76,24 +91,24 @@ const BookingPolicy = () => {
             <div className="policy-section">
               <h2 className="policy-title">Booking Cancellation Policy</h2>
               <p className="policy-warning">Valid up until 24 hours after the booking</p>
-              
+
               <h3 className="policy-subtitle">Lorem ipsum</h3>
               <div className="policy-text">
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem lorem adipisci sed 
-                  lacinia quis. Nibh dictumst vulputate odio pellentesque sit quis ex, sit ipsum. Sit 
-                  rhoncus velit in sed massa orci et sit. Vitae et vitae eget lorem non dui. 
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lorem lorem adipisci sed
+                  lacinia quis. Nibh dictumst vulputate odio pellentesque sit quis ex, sit ipsum. Sit
+                  rhoncus velit in sed massa orci et sit. Vitae et vitae eget lorem non dui.
                   Sollicitudin ut mi adipiscing dui.
                 </p>
                 <p>
-                  Convallis in semper laoreet nibh leo. Vivamus molestudde ipsum pulvinar non 
-                  rutrum risus dui, risus. Porta massa velit iaculis tincidunt tortor, risus, scelerisque 
-                  risus. In at lorem pellentesque orci elemons dictum dignissim in. Aenean pulvinar 
-                  diam interdum ullamcorper. Vel urna, tortor, massa metus purus metus. 
+                  Convallis in semper laoreet nibh leo. Vivamus molestudde ipsum pulvinar non
+                  rutrum risus dui, risus. Porta massa velit iaculis tincidunt tortor, risus, scelerisque
+                  risus. In at lorem pellentesque orci elemons dictum dignissim in. Aenean pulvinar
+                  diam interdum ullamcorper. Vel urna, tortor, massa metus purus metus.
                   Maecenas mollis in velit auctor cursus scelerisque eget.
                 </p>
               </div>
-              
+
               <button className="back-btn" onClick={handleBack}>
                 Back
               </button>
@@ -101,7 +116,7 @@ const BookingPolicy = () => {
           </div>
 
           {/* Right Side - Booking Summary */}
-          <div className="col-md-6" style={{display: 'flex', justifyContent: 'right', alignItems: 'center'}}>
+          <div className="col-md-6" style={{ display: 'flex', justifyContent: 'right', alignItems: 'center' }}>
             <div className="booking-summary-card">
               {showPaymentMethod && (
                 <>
@@ -115,31 +130,31 @@ const BookingPolicy = () => {
                   <div className="separator-line"></div>
                 </>
               )}
-              
+
               <div className="booking-header">
                 <span className="venue-name">{gameData.venue}</span>
                 <span className="duration">{gameData.duration}</span>
               </div>
-              
+
               <div className="booking-details">
                 {gameData.sport} | {gameData.court} | {gameData.surface} | {gameData.gameType}
               </div>
-              
+
               <div className="booking-datetime">
                 ({gameData.date})
               </div>
 
               {showPaymentMethod && <div className="separator-line"></div>}
-              
+
               {!showPaymentMethod ? (
                 <>
                   <div className="payment-options">
                     <div className="payment-option">
                       <div className="payment-header">
-                        <input 
-                          type="checkbox" 
-                          id="pay-part" 
-                          name="payment" 
+                        <input
+                          type="checkbox"
+                          id="pay-part"
+                          name="payment"
                           value="part"
                           checked={selectedPayment === 'part'}
                           onChange={() => setSelectedPayment('part')}
@@ -157,13 +172,13 @@ const BookingPolicy = () => {
                         If other players do not pay before September 2, 12:00 noon you will be charged additional ${gameData.partPrice}
                       </p>
                     </div>
-                    
+
                     <div className="payment-option">
                       <div className="payment-header">
-                        <input 
-                          type="checkbox" 
-                          id="pay-everything" 
-                          name="payment" 
+                        <input
+                          type="checkbox"
+                          id="pay-everything"
+                          name="payment"
                           value="everything"
                           checked={selectedPayment === 'everything'}
                           onChange={() => setSelectedPayment('everything')}
@@ -179,11 +194,11 @@ const BookingPolicy = () => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <button className="add-players-btn" onClick={handleAddPlayers}>
                     Add Players
                   </button>
-                  
+
                   <div className="subtotal-section">
                     <div className="subtotal-label">Subtotal</div>
                     <div className="subtotal-amount">
@@ -191,7 +206,7 @@ const BookingPolicy = () => {
                     </div>
                   </div>
                   <div className="tax-note">Service fees and tax incl.</div>
-                  
+
                   <button className="continue-payment-btn" onClick={handleContinuePayment}>
                     Continue Payment ${selectedPayment === 'part' ? gameData.subtotal : gameData.fullPrice}
                   </button>
@@ -209,13 +224,13 @@ const BookingPolicy = () => {
                     </div>
                     <div className="tax-note">Tax incl.</div>
                   </div>
-                  
+
                   <div className="payment-instruction">
                     Proceed to checkout to add your new payment method.
                   </div>
-                  
-                  <button 
-                    className="pay-button" 
+
+                  <button
+                    className="pay-button"
                     onClick={handlePayment}
                     disabled={paymentLoading}
                   >

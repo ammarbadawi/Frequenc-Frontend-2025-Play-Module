@@ -1,5 +1,6 @@
 // @ts-nocheck
 import React, { useState } from "react";
+import usersService from "../../services/usersService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faTrash } from "@fortawesome/free-solid-svg-icons";
 import "../../styles/playerLists.scss";
@@ -7,7 +8,7 @@ import "../../styles/playerLists.scss";
 const PlayerLists = ({ PlayerLists, gameType }) => {
   const [selectedRoles, setSelectedRoles] = useState({});
 
-  const roleOptions = gameType === 'Doubles' 
+  const roleOptions = gameType === 'Doubles'
     ? ["Captain", "Vice Captain", "Batsman", "All Rounder"]
     : ["Captain", "Vice Captain"];
 
@@ -31,7 +32,7 @@ const PlayerLists = ({ PlayerLists, gameType }) => {
                 </div>
                 <span className="friend-name">{friend.name}</span>
               </div>
-              <select 
+              <select
                 className="role-selector"
                 value={selectedRoles[index] || roleOptions[0]}
                 onChange={(e) => handleRoleChange(index, e.target.value)}
@@ -40,7 +41,13 @@ const PlayerLists = ({ PlayerLists, gameType }) => {
                   <option key={role} value={role}>{role}</option>
                 ))}
               </select>
-              <button className="delete-btn">
+              <button className="delete-btn" onClick={async () => {
+                try {
+                  if (friend.id) {
+                    await usersService.removeFriend(friend.id);
+                  }
+                } catch { }
+              }}>
                 <FontAwesomeIcon icon={faTrash} />
               </button>
             </div>

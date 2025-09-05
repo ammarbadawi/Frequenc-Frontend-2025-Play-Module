@@ -51,4 +51,14 @@ export class UsersController {
   async removeFavorite(@Payload() data: { userId: string; venueId: string }) {
     return this.usersService.removeFavorite(data.userId, data.venueId);
   }
+
+  @MessagePattern('users.get-stats')
+  async getStats(@Payload() data: { userId: string }) {
+    return this.usersService.getUserStats(data.userId);
+  }
+
+  @MessagePattern('users.get-achievements')
+  async getAchievements(@Payload() data: { userId: string }) {
+    return this.usersService.getUserAchievements(data.userId);
+  }
 } 

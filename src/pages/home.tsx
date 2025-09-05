@@ -24,7 +24,7 @@ const Home = () => {
               </p>
             </div>
             <div class="btndemo">
-              <a href="/marketplace2" class="btn btnbook">
+              <a href="/marketplace" class="btn btnbook">
                 Book a Court
               </a>
               <a href="#" class="btn bntgame">
@@ -36,7 +36,7 @@ const Home = () => {
       </section>
 
       {/* 2. ABOUT-AREA SECTION */}
-      <section class="about-area" style={{padding: '60px 0'}}>
+      <section class="about-area" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="row align-items-center">
             <div class="col-lg-6 col-md-12">
@@ -71,7 +71,7 @@ const Home = () => {
       </section>
 
       {/* 3. HP_BOXWE SECTION */}
-      <section class="hp_boxwe" style={{padding: '60px 0'}}>
+      <section class="hp_boxwe" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="containerf">
             <div class=" row find-service">
@@ -117,7 +117,7 @@ const Home = () => {
       </section>
 
       {/* 4. HP_BOX SECTION */}
-      <section class="hp_box" style={{padding: '60px 0'}}>
+      <section class="hp_box" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="containerr position-realtive">
             <div class="imgty">
@@ -140,7 +140,7 @@ const Home = () => {
       </section>
 
       {/* 5. SECTIONCOURES SECTION */}
-      <section class="sectioncoures" style={{padding: '60px 0'}}>
+      <section class="sectioncoures" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="containerTd">
             <div class="sitetitle">Degree Programs</div>
@@ -266,7 +266,7 @@ const Home = () => {
       </section>
 
       {/* 6. HP_WHY SECTION */}
-      <section class="hp_why" style={{padding: '60px 0'}}>
+      <section class="hp_why" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="cofr">
             <div class="coimg3">
@@ -286,7 +286,7 @@ const Home = () => {
       </section>
 
       {/* 7. TOP-SERVICES SECTION */}
-      <section class="top-services" style={{padding: '60px 0'}}>
+      <section class="top-services" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="sitetitle">How It work</div>
           <div class="ct">
@@ -327,7 +327,7 @@ const Home = () => {
       </section>
 
       {/* 8. OPENMATCH SECTION */}
-      <section class="openmatch" style={{padding: '60px 0'}}>
+      <section class="openmatch" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="sitetitle">Open Matches</div>
 
@@ -562,7 +562,7 @@ const Home = () => {
       </section>
 
       {/* 9. HP_BOXWE2 SECTION */}
-      <section class="hp_boxwe2" style={{padding: '60px 0'}}>
+      <section class="hp_boxwe2" style={{ padding: '60px 0' }}>
         <div class="container">
           <div class="cofrnew">
             <div class="cofrnewf">

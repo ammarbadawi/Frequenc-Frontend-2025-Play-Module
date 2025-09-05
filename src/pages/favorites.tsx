@@ -1,10 +1,10 @@
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faHeart, 
-  faTrash, 
-  faFilter, 
+import {
+  faHeart,
+  faTrash,
+  faFilter,
   faSearch,
   faMapMarkerAlt,
   faStar,
@@ -16,6 +16,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import "../styles/favorites.css";
+import usersService from "../services/usersService";
+import paymentsService from "../services/paymentsService";
 
 const Favorites = () => {
   const [favorites, setFavorites] = useState([]);
@@ -24,93 +26,45 @@ const Favorites = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
 
-  // Mock favorites data - in a real app, this would come from context or API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setFavorites([
-        {
-          id: 1,
-          name: "Central Park Tennis Center",
-          type: "venue",
-          category: "tennis",
-          location: "New York, NY",
-          rating: 4.8,
-          price: "$45/hour",
-          image: "/images/select-sport-img-1.png.png",
-          description: "Professional tennis courts with excellent facilities",
-          amenities: ["Indoor Courts", "Pro Shop", "Coaching"],
-          isAvailable: true
-        },
-        {
-          id: 2,
-          name: "Wilson Pro Staff Tennis Racket",
-          type: "equipment",
-          category: "tennis",
-          brand: "Wilson",
-          price: "$189.99",
-          image: "/images/select-sport-img-2.png.png",
-          description: "Professional grade tennis racket for advanced players",
-          features: ["Graphite Frame", "16x19 String Pattern", "315g"],
-          inStock: true
-        },
-        {
-          id: 3,
-          name: "Basketball Court - Downtown Sports Complex",
-          type: "venue",
-          category: "basketball",
-          location: "Los Angeles, CA",
-          rating: 4.6,
-          price: "$35/hour",
-          image: "/images/select-sport-img-3.png.png",
-          description: "Indoor basketball courts with professional flooring",
-          amenities: ["Multiple Courts", "Locker Rooms", "Parking"],
-          isAvailable: true
-        },
-        {
-          id: 4,
-          name: "Nike Air Zoom Tennis Shoes",
-          type: "equipment",
-          category: "tennis",
-          brand: "Nike",
-          price: "$129.99",
-          image: "/images/select-sport-img-4.png.png",
-          description: "Comfortable tennis shoes with excellent grip",
-          features: ["Breathable Mesh", "Rubber Outsole", "Cushioned Midsole"],
-          inStock: false
-        },
-        {
-          id: 5,
-          name: "Soccer Field - Riverside Park",
-          type: "venue",
-          category: "soccer",
-          location: "Chicago, IL",
-          rating: 4.7,
-          price: "$60/hour",
-          image: "/images/select-sport-img-5.png.png",
-          description: "Full-size soccer field with natural grass",
-          amenities: ["Floodlights", "Changing Rooms", "Parking"],
-          isAvailable: true
-        }
-      ]);
-      setLoading(false);
-    }, 1000);
+    (async () => {
+      try {
+        setLoading(true);
+        const data = await usersService.getFavorites();
+        const list = Array.isArray(data?.favorites) ? data.favorites : (Array.isArray(data) ? data : []);
+        setFavorites(list);
+      } catch (e) {
+        setFavorites([]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  const removeFavorite = (itemId) => {
+  const removeFavorite = async (itemId) => {
+    try { await usersService.removeFromFavorites(itemId); } catch { }
     setFavorites(prevFavorites => prevFavorites.filter(item => item.id !== itemId));
   };
 
-  const addToCart = (item) => {
-    // In a real app, this would add to cart context/state
-    alert(`${item.name} added to cart!`);
+  const addToCart = async (item) => {
+    try {
+      await paymentsService.addToCart({
+        productId: item.id,
+        quantity: 1,
+        price: item.price && typeof item.price === 'string' ? Number(item.price.replace(/[^0-9.]/g, '')) : (item.price || 0),
+        type: item.type || 'equipment',
+      });
+      alert('Added to cart');
+    } catch (e) {
+      alert(e.message || 'Failed to add to cart');
+    }
   };
 
   const filteredAndSortedFavorites = favorites
     .filter(item => {
       const matchesFilter = filter === 'all' || item.type === filter;
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.description.toLowerCase().includes(searchTerm.toLowerCase());
+        item.description.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesFilter && matchesSearch;
     })
     .sort((a, b) => {
@@ -186,19 +140,19 @@ const Favorites = () => {
 
           <div className="filter-section">
             <div className="filter-buttons">
-              <button 
+              <button
                 className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                 onClick={() => setFilter('all')}
               >
                 All ({getFilterCount('all')})
               </button>
-              <button 
+              <button
                 className={`filter-btn ${filter === 'venue' ? 'active' : ''}`}
                 onClick={() => setFilter('venue')}
               >
                 Venues ({getFilterCount('venue')})
               </button>
-              <button 
+              <button
                 className={`filter-btn ${filter === 'equipment' ? 'active' : ''}`}
                 onClick={() => setFilter('equipment')}
               >
@@ -207,8 +161,8 @@ const Favorites = () => {
             </div>
 
             <div className="sort-section">
-              <select 
-                value={sortBy} 
+              <select
+                value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 className="sort-select"
               >
@@ -226,7 +180,7 @@ const Favorites = () => {
               <div className="card-image">
                 <img src={item.image} alt={item.name} />
                 <div className="card-overlay">
-                  <button 
+                  <button
                     className="remove-favorite"
                     onClick={() => removeFavorite(item.id)}
                     aria-label="Remove from favorites"
@@ -234,7 +188,7 @@ const Favorites = () => {
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                   {item.type === 'equipment' && (
-                    <button 
+                    <button
                       className="add-to-cart"
                       onClick={() => addToCart(item)}
                       disabled={!item.inStock}
@@ -306,7 +260,7 @@ const Favorites = () => {
                     </Link>
                   )}
                   {item.type === 'equipment' && (
-                    <button 
+                    <button
                       className="btn btn-primary"
                       onClick={() => addToCart(item)}
                       disabled={!item.inStock}

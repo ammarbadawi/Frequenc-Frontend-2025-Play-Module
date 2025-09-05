@@ -15,7 +15,7 @@ class PaymentsService {
   // Add item to cart
   async addToCart(itemData) {
     try {
-      const response = await api.post('/payments/cart/items', itemData);
+      const response = await api.post('/payments/cart/add', itemData);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to add item to cart');
@@ -25,7 +25,7 @@ class PaymentsService {
   // Update cart item
   async updateCartItem(itemId, updateData) {
     try {
-      const response = await api.put(`/payments/cart/items/${itemId}`, updateData);
+      const response = await api.put(`/payments/cart/${itemId}`, updateData);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to update cart item');
@@ -35,7 +35,7 @@ class PaymentsService {
   // Remove item from cart
   async removeFromCart(itemId) {
     try {
-      const response = await api.delete(`/payments/cart/items/${itemId}`);
+      const response = await api.delete(`/payments/cart/${itemId}`);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to remove item from cart');
@@ -45,7 +45,7 @@ class PaymentsService {
   // Apply coupon
   async applyCoupon(couponCode) {
     try {
-      const response = await api.post('/payments/cart/apply-coupon', { couponCode });
+      const response = await api.post('/payments/coupon/apply', { code: couponCode });
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to apply coupon');

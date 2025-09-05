@@ -45,4 +45,25 @@ export class VenuesController {
   async uploadVenueImage(@Payload() data: { venueId: string; imageFile: any }) {
     return this.venuesService.uploadVenueImage(data.venueId, data.imageFile);
   }
+
+  @MessagePattern('venues.create')
+  async createVenue(@Payload() data: any) {
+    return this.venuesService.createVenue(data);
+  }
+
+  @MessagePattern('venues.update')
+  async updateVenue(@Payload() data: any) {
+    const { id, ...update } = data;
+    return this.venuesService.updateVenue(id, update);
+  }
+
+  @MessagePattern('venues.delete')
+  async deleteVenue(@Payload() data: { id: string }) {
+    return this.venuesService.deleteVenue(data.id);
+  }
+
+  @MessagePattern('venues.add-court')
+  async addCourt(@Payload() data: any) {
+    return this.venuesService.addCourt(data.venueId, data);
+  }
 } 
